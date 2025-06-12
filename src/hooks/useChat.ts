@@ -241,7 +241,7 @@ export const useChat = (roomId: string | null, user: User | null) => {
     }
   };
 
-  const addWordCloudResponse = async (messageId: string, pollId: string, response: string, userId: string) => {
+  const addWordCloudResponse = async (messageId: string, _pollId: string, response: string, userId: string) => {
     try {
       const messageRef = doc(db, 'messages', messageId);
       const currentMessage = messages.find(msg => msg.id === messageId);
@@ -323,8 +323,6 @@ export const useRoomList = () => {
 };
 
 export const useChatRoom = () => {
-  const [rooms, setRooms] = useState<ChatRoom[]>([]);
-
   // 닉네임 중복 검사 함수
   const checkNicknameAvailability = async (roomId: string, nickname: string): Promise<boolean> => {
     try {
@@ -462,7 +460,6 @@ export const useChatRoom = () => {
   };
 
   return { 
-    rooms, 
     createRoom, 
     getRoomById, 
     verifyAdminPassword,

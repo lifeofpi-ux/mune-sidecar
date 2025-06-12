@@ -78,7 +78,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ roomId, roomName }) =
             />
             <button
               onClick={copyToClipboard}
-              className="modern-btn modern-btn-warning modern-btn-sm rounded-l-none rounded-r-xl"
+              className="modern-btn modern-btn-warning modern-btn-sm"
             >
               복사
             </button>
