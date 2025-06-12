@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUNE</title>
+    <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 로딩 화면 -->
+        <div id="loading" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>채팅 사이트를 불러오는 중...</p>
+        </div>
+
+        <!-- 오류 화면 -->
+        <div id="error" class="error-container" style="display: none;">
+            <div class="error-content">
+                <h2>🚫 연결 오류</h2>
+                <p id="error-message">채팅 사이트에 연결할 수 없습니다.</p>
+                <button id="retry-btn" class="retry-button">다시 시도</button>
+                <button id="direct-link-btn" class="direct-link-button">새 탭에서 열기</button>
+            </div>
+        </div>
+
+        <!-- 채팅 iframe -->
+        <iframe 
+            id="chat-iframe" 
+            src="" 
+            frameborder="0" 
+            style="display: none;"
+            allow="clipboard-read; clipboard-write"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals">
+        </iframe>
+
+
+    </div>
+
+    <script src="sidepanel.js"></script>
+</body>
+</html> 

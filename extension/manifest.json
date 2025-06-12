@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "MUNE 사이드패널",
+  "version": "1.0.0",
+  "description": "강연 및 프레젠테이션을 위한 실시간 채팅 사이드패널",
+  
+  "permissions": [
+    "sidePanel"
+  ],
+  
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  
+  "action": {
+    "default_title": "MUNE 열기",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
+} 

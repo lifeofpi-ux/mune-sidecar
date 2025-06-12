@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 강연룸 컬렉션
+    match /chatRooms/{roomId} {
+      allow read, write: if true;
+    }
+    
+    // 메시지 컬렉션
+    match /messages/{messageId} {
+      allow read, write: if true;
+    }
+  }
+} 
