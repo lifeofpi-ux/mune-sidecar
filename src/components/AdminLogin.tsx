@@ -15,7 +15,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   const [activeTab, setActiveTab] = useState<'create' | 'manage'>('create');
   const [modal, setModal] = useState<{
     isOpen: boolean;
-    type: 'confirm' | 'alert';
+    type: 'confirm' | 'alert' | 'password';
     title: string;
     message: string;
     onConfirm?: () => void;
@@ -25,20 +25,66 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
     title: '',
     message: ''
   });
+  
+  // 비밀번호 입력 관련 상태
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [pendingAction, setPendingAction] = useState<{
+    type: 'delete' | 'enter';
+    roomId: string;
+    roomName: string;
+  } | null>(null);
 
-  const { createRoom } = useChatRoom();
+  const { createRoom, verifyAdminPassword } = useChatRoom();
   const { rooms, loading: roomsLoading, deleteRoom } = useRoomList();
 
   const handleDeleteRoom = async (roomId: string, roomName: string, e: React.MouseEvent) => {
     e.stopPropagation(); // 카드 클릭 이벤트 방지
+    
+    // 비밀번호 입력 모달 표시
+    setPendingAction({ type: 'delete', roomId, roomName });
+    setPasswordInput('');
+    setPasswordError('');
     setModal({
       isOpen: true,
-      type: 'confirm',
+      type: 'password',
       title: '강의룸 삭제',
-      message: `"${roomName}" 강의룸을 삭제하시겠습니까?\n모든 채팅 기록이 함께 삭제됩니다.`,
-      onConfirm: async () => {
+      message: `"${roomName}" 강의룸을 삭제하려면 관리자 비밀번호를 입력하세요.`
+    });
+  };
+
+  const handleRoomClick = (roomId: string, roomName: string) => {
+    // 관리자 입장 시 비밀번호 입력 모달 표시
+    setPendingAction({ type: 'enter', roomId, roomName });
+    setPasswordInput('');
+    setPasswordError('');
+    setModal({
+      isOpen: true,
+      type: 'password',
+      title: '관리자 입장',
+      message: `"${roomName}" 강의룸에 관리자로 입장하려면 비밀번호를 입력하세요.`
+    });
+  };
+
+  const handlePasswordConfirm = async () => {
+    if (!pendingAction || !passwordInput.trim()) {
+      setPasswordError('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      // 비밀번호 검증
+      const isValidPassword = await verifyAdminPassword(pendingAction.roomId, passwordInput.trim());
+      
+      if (!isValidPassword) {
+        setPasswordError('비밀번호가 올바르지 않습니다.');
+        return;
+      }
+
+      // 비밀번호가 올바른 경우 해당 액션 실행
+      if (pendingAction.type === 'delete') {
         try {
-          await deleteRoom(roomId);
+          await deleteRoom(pendingAction.roomId);
           setModal({
             isOpen: true,
             type: 'alert',
@@ -54,14 +100,28 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           });
           console.error('Error deleting room:', error);
         }
+      } else if (pendingAction.type === 'enter') {
+        // 관리자 권한으로 해당 강의룸에 입장
+        const speakerName = adminName.trim() || '강의자';
+        onRoomCreated(pendingAction.roomId, pendingAction.roomName, speakerName);
       }
-    });
+
+      // 상태 초기화
+      setPendingAction(null);
+      setPasswordInput('');
+      setPasswordError('');
+      
+    } catch (error) {
+      setPasswordError('비밀번호 확인 중 오류가 발생했습니다.');
+      console.error('Error verifying password:', error);
+    }
   };
 
-  const handleRoomClick = (roomId: string, roomName: string) => {
-    // 관리자 권한으로 해당 강의룸에 입장
-    const speakerName = adminName.trim() || '강의자'; // 입력된 이름이 있으면 사용, 없으면 기본값
-    onRoomCreated(roomId, roomName, speakerName);
+  const handleModalClose = () => {
+    setModal({ ...modal, isOpen: false });
+    setPendingAction(null);
+    setPasswordInput('');
+    setPasswordError('');
   };
 
   const formatDate = (date: Date) => {
@@ -186,9 +246,25 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           </form>
         )}
 
-                {/* 기존 강의룸 관리 탭 */}
+        {/* 기존 강의룸 관리 탭 */}
         {activeTab === 'manage' && (
           <div>
+            <div className="mb-4">
+              <label htmlFor="manageAdminName" className="block text-sm font-medium text-gray-700 mb-2">
+                강의자 이름
+              </label>
+              <input
+                type="text"
+                id="manageAdminName"
+                value={adminName}
+                onChange={(e) => setAdminName(e.target.value)}
+                className="w-full px-4 py-3 modern-input"
+                placeholder="강의룸 입장 시 사용할 이름"
+                maxLength={20}
+              />
+              <p className="text-xs text-gray-500 mt-1">강의룸 입장 시 표시될 이름입니다.</p>
+            </div>
+            
             {roomsLoading ? (
               <div className="text-center py-8">
                 <div className="text-gray-500">로딩 중...</div>
@@ -247,14 +323,72 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         </p>
       </div>
       
-      <Modal
-        isOpen={modal.isOpen}
-        onClose={() => setModal({ ...modal, isOpen: false })}
-        onConfirm={modal.onConfirm}
-        title={modal.title}
-        message={modal.message}
-        type={modal.type}
-      />
+      {/* 기존 모달 (확인/알림) */}
+      {modal.type !== 'password' && (
+        <Modal
+          isOpen={modal.isOpen}
+          onClose={handleModalClose}
+          onConfirm={modal.onConfirm}
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+        />
+      )}
+      
+      {/* 비밀번호 입력 모달 */}
+      {modal.type === 'password' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{modal.title}</h3>
+              <p className="text-gray-600 mb-4">{modal.message}</p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="passwordInput" className="block text-sm font-medium text-gray-700 mb-2">
+                    관리자 비밀번호
+                  </label>
+                  <input
+                    type="password"
+                    id="passwordInput"
+                    value={passwordInput}
+                    onChange={(e) => {
+                      setPasswordInput(e.target.value);
+                      setPasswordError('');
+                    }}
+                    className="w-full px-4 py-3 modern-input"
+                    placeholder="비밀번호를 입력하세요"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handlePasswordConfirm();
+                      }
+                    }}
+                  />
+                  {passwordError && (
+                    <p className="text-sm text-red-600 mt-1">{passwordError}</p>
+                  )}
+                </div>
+                
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleModalClose}
+                    className="flex-1 modern-btn modern-btn-secondary p-2"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handlePasswordConfirm}
+                    className="flex-1 modern-btn modern-btn-primary p-2"  
+                    disabled={!passwordInput.trim()}
+                  >
+                    확인
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
