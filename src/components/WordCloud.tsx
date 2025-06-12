@@ -1,11 +1,24 @@
 import React, { useMemo, useEffect, useState, useRef } from 'react';
-import ReactWordcloud from 'react-wordcloud';
+import { Wordcloud } from '@visx/wordcloud';
+import { scaleOrdinal } from '@visx/scale';
+import { Text } from '@visx/text';
 
 interface WordCloudProps {
   responses: string[];
   width?: number;
   height?: number;
 }
+
+interface WordData {
+  text: string;
+  value: number;
+}
+
+const colors = [
+  '#3B82F6', '#6366F1', '#8B5CF6', '#A855F7', '#EC4899',
+  '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16',
+  '#22C55E', '#10B981', '#14B8A6', '#06B6D4', '#0EA5E9'
+];
 
 const WordCloud: React.FC<WordCloudProps> = ({ responses, width, height }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,33 +77,27 @@ const WordCloud: React.FC<WordCloudProps> = ({ responses, width, height }) => {
       .slice(0, 50);
   }, [responses]);
 
-  const options = {
-    colors: [
-      '#3B82F6', '#6366F1', '#8B5CF6', '#A855F7', '#EC4899',
-      '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16',
-      '#22C55E', '#10B981', '#14B8A6', '#06B6D4', '#0EA5E9'
-    ],
-    enableTooltip: true,
-    deterministic: false,
-    fontFamily: 'system-ui, -apple-system, sans-serif',
-    fontSizes: [Math.max(10, Math.min(dimensions.width / 40, 16)), Math.min(dimensions.width / 8, 48)] as [number, number], // 반응형 폰트 크기
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    padding: Math.max(1, Math.min(dimensions.width / 200, 4)), // 반응형 패딩
-    rotations: 2,
-    rotationAngles: [-90, 0] as [number, number],
-    scale: 'sqrt' as const,
-    spiral: 'archimedean' as const,
-    transitionDuration: 1000,
+  const colorScale = scaleOrdinal({
+    domain: words.map((w) => w.text),
+    range: colors,
+  });
+
+  const fontScale = (value: number) => {
+    const maxValue = Math.max(...words.map(w => w.value));
+    const minValue = Math.min(...words.map(w => w.value));
+    const range = maxValue - minValue || 1;
+    const normalized = (value - minValue) / range;
+    
+    // 반응형 폰트 크기
+    const minFont = Math.max(10, Math.min(dimensions.width / 40, 16));
+    const maxFont = Math.min(dimensions.width / 8, 48);
+    
+    return minFont + (maxFont - minFont) * normalized;
   };
 
-  const callbacks = {
-    onWordClick: (word: any) => {
-      console.log(`Clicked word: ${word.text} (${word.value} times)`);
-    },
-    onWordMouseOver: (word: any) => {
-      console.log(`Hovered word: ${word.text}`);
-    },
+  const fontWeight = (datum: WordData) => {
+    const maxValue = Math.max(...words.map(w => w.value));
+    return datum.value === maxValue ? 700 : 400;
   };
 
   return (
@@ -99,12 +106,38 @@ const WordCloud: React.FC<WordCloudProps> = ({ responses, width, height }) => {
       className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg overflow-hidden"
     >
       <div className="w-full h-full flex items-center justify-center">
-        <ReactWordcloud
-          words={words}
-          options={options}
-          callbacks={callbacks}
-          size={[dimensions.width, dimensions.height]}
-        />
+        <svg width={dimensions.width} height={dimensions.height}>
+          <Wordcloud
+            words={words}
+            width={dimensions.width}
+            height={dimensions.height}
+            fontSize={(datum: WordData) => fontScale(datum.value)}
+            font="system-ui, -apple-system, sans-serif"
+            padding={2}
+            spiral="archimedean"
+            rotate={0}
+            random={() => 0.5}
+          >
+            {(cloudWords) =>
+              cloudWords.map((w) => {
+                const originalWord = words.find(word => word.text === w.text);
+                return (
+                  <Text
+                    key={w.text}
+                    fill={colorScale(w.text || '')}
+                    textAnchor="middle"
+                    transform={`translate(${w.x}, ${w.y})`}
+                    fontSize={w.size}
+                    fontFamily={w.font}
+                    fontWeight={originalWord ? fontWeight(originalWord) : 400}
+                  >
+                    {w.text}
+                  </Text>
+                );
+              })
+            }
+          </Wordcloud>
+        </svg>
       </div>
     </div>
   );
