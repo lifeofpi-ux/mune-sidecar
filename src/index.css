@@ -136,6 +136,16 @@ body {
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
+/* Accent Button - Purple to Pink Gradient */
+.modern-btn-accent {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  color: white;
+}
+
+.modern-btn-accent:hover {
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+}
+
 /* Small Button */
 .modern-btn-sm {
   padding: 8px 16px;

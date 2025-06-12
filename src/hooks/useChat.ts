@@ -22,6 +22,7 @@ export const useChat = (roomId: string | null, user: User | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
+  const [onlineUsersList, setOnlineUsersList] = useState<string[]>([]);
   const isPresenceSetup = useRef(false);
 
   // 사용자 접속 상태 관리
@@ -148,6 +149,19 @@ export const useChat = (roomId: string | null, user: User | null) => {
       }
     });
 
+    // 접속자 목록 구독
+    const onlineUsersRef = collection(db, 'chatRooms', roomId, 'onlineUsers');
+    const unsubscribeOnlineUsersList = onSnapshot(onlineUsersRef, (snapshot) => {
+      const usersList: string[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.nickname) {
+          usersList.push(data.nickname);
+        }
+      });
+      setOnlineUsersList(usersList);
+    });
+
     // 네트워크 상태 모니터링
     const handleOnline = () => {
       if (!isPresenceSetup.current) {
@@ -166,6 +180,7 @@ export const useChat = (roomId: string | null, user: User | null) => {
       cleanupUserPresence();
       unsubscribeMessages();
       unsubscribeOnlineUsers();
+      unsubscribeOnlineUsersList();
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
@@ -265,7 +280,8 @@ export const useChat = (roomId: string | null, user: User | null) => {
     voteOnPoll, 
     closePoll, 
     addWordCloudResponse, 
-    onlineUsers
+    onlineUsers,
+    onlineUsersList
   };
 };
 

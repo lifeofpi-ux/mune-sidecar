@@ -5,7 +5,8 @@ import { User, Poll } from '../types';
 import QRCodeGenerator from './QRCodeGenerator';
 import PollModal from './PollModal';
 import PollCard from './PollCard';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import RandomPicker from './RandomPicker';
+import { PlusIcon, GiftIcon } from '@heroicons/react/24/outline';
 
 interface ChatRoomProps {
   user: User;
@@ -17,6 +18,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   const [message, setMessage] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [showPollModal, setShowPollModal] = useState(false);
+  const [showRandomPicker, setShowRandomPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -26,7 +28,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
     voteOnPoll, 
     closePoll, 
     addWordCloudResponse, 
-    onlineUsers 
+    onlineUsers,
+    onlineUsersList
   } = useChat(user.roomId, user);
 
   const { decrementOnlineUsers } = useChatRoom();
@@ -140,12 +143,22 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
         </div>
         <div className="flex items-center space-x-2">
           {user.isAdmin && (
-            <button
-              onClick={() => setShowQR(!showQR)}
-              className="modern-btn modern-btn-primary modern-btn-sm"
-            >
-              {showQR ? 'QR 숨기기' : 'QR 보기'}
-            </button>
+            <>
+              <button
+                onClick={() => setShowRandomPicker(true)}
+                className="modern-btn modern-btn-accent modern-btn-sm flex items-center space-x-1"
+                title="랜덤 추첨"
+              >
+                <GiftIcon className="w-4 h-4" />
+                <span>추첨</span>
+              </button>
+              <button
+                onClick={() => setShowQR(!showQR)}
+                className="modern-btn modern-btn-primary modern-btn-sm"
+              >
+                {showQR ? 'QR 숨기기' : 'QR 보기'}
+              </button>
+            </>
           )}
           <button
             onClick={handleLeave}
@@ -288,6 +301,15 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
         isOpen={showPollModal}
         onClose={() => setShowPollModal(false)}
         onCreatePoll={handleCreatePoll}
+      />
+
+      {/* 랜덤 추첨 모달 */}
+      <RandomPicker
+        isOpen={showRandomPicker}
+        onClose={() => setShowRandomPicker(false)}
+        onlineUsersList={onlineUsersList}
+        roomName={roomName}
+        adminName={user.name}
       />
     </div>
   );
