@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../hooks/useChat';
+import { useChatRoom } from '../hooks/useChat';
 import { User, Poll } from '../types';
 import QRCodeGenerator from './QRCodeGenerator';
 import PollModal from './PollModal';
@@ -18,7 +19,17 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   const [showPollModal, setShowPollModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, loading, sendMessage, voteOnPoll, closePoll, addWordCloudResponse } = useChat(user.roomId);
+  const { 
+    messages, 
+    loading, 
+    sendMessage, 
+    voteOnPoll, 
+    closePoll, 
+    addWordCloudResponse, 
+    onlineUsers 
+  } = useChat(user.roomId, user);
+
+  const { decrementOnlineUsers } = useChatRoom();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,6 +38,16 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleLeave = async () => {
+    try {
+      await decrementOnlineUsers(user.roomId, user.name, user.sessionId);
+      onLeave();
+    } catch (error) {
+      console.error('Error leaving room:', error);
+      onLeave(); // 에러가 발생해도 나가기 실행
+    }
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,11 +130,12 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
         <div>
           <h1 className="text-lg font-semibold text-gray-900">{roomName}</h1>
           <p className="text-sm text-gray-500 flex items-center">
-            
             {user.isAdmin && (
-              <span className="badge badge-speaker mr-1 py-0.5" style={{ padding: '0.1rem 0.5rem' }}>강연자</span>
+              <span className="badge badge-speaker mr-1 py-0.5" style={{ padding: '0.1rem 0.5rem' }}>강의자</span>
             )}
             {user.name}
+            <span className="ml-2 text-gray-400">•</span>
+            <span className="ml-2 text-gray-500">현재 {onlineUsers}명 접속 중</span>
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -126,7 +148,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
             </button>
           )}
           <button
-            onClick={onLeave}
+            onClick={handleLeave}
             className="modern-btn modern-btn-secondary modern-btn-sm"
           >
             나가기

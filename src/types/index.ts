@@ -37,4 +37,5 @@ export interface User {
   name: string;
   isAdmin: boolean;
   roomId: string;
+  sessionId: string; // 브라우저 세션별 고유 ID
 } 

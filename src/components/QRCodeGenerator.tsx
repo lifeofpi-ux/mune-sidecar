@@ -47,7 +47,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ roomId, roomName }) =
   return (
     <div className="modern-card p-6 max-w-md mx-auto">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">강연룸 QR 코드</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">강의룸 QR 코드</h2>
         <p className="text-gray-600">
           <span className="font-semibold">{roomName}</span>
         </p>
@@ -74,7 +74,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ roomId, roomName }) =
               type="text"
               value={chatUrl}
               readOnly
-              className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-l-xl bg-gray-50 text-sm focus:outline-none"
+              className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-full mr-2 bg-gray-50 text-sm focus:outline-none"
             />
             <button
               onClick={copyToClipboard}
@@ -89,7 +89,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ roomId, roomName }) =
           <h3 className="text-sm font-medium text-blue-800 mb-2">사용 방법</h3>
           <ul className="text-sm text-blue-700 space-y-1">
             <li>• 참여자들이 QR 코드를 스캔하거나 링크를 클릭</li>
-            <li>• 이름을 입력하고 강연룸에 입장</li>
+            <li>• 이름을 입력하고 강의룸에 입장</li>
             <li>• 실시간으로 대화 참여 가능</li>
           </ul>
         </div>

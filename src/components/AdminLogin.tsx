@@ -60,7 +60,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
 
   const handleRoomClick = (roomId: string, roomName: string) => {
     // 관리자 권한으로 해당 강의룸에 입장
-    const speakerName = adminName.trim() || '강연자'; // 입력된 이름이 있으면 사용, 없으면 기본값
+    const speakerName = adminName.trim() || '강의자'; // 입력된 이름이 있으면 사용, 없으면 기본값
     onRoomCreated(roomId, roomName, speakerName);
   };
 
@@ -88,7 +88,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       const roomId = await createRoom(roomName.trim(), adminPassword.trim());
       onRoomCreated(roomId, roomName.trim(), adminName.trim());
     } catch (error) {
-      setError('강연룸 생성에 실패했습니다. 다시 시도해주세요.');
+      setError('강의룸 생성에 실패했습니다. 다시 시도해주세요.');
       console.error('Error creating room:', error);
     } finally {
       setLoading(false);
@@ -100,7 +100,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       <div className="modern-card p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">MUNE</h1>
-          <p className="text-gray-600">강연 룸 관리</p>
+          <p className="text-gray-600">강의 룸 관리</p>
         </div>
 
         {/* 탭 네비게이션 */}
@@ -110,7 +110,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             onClick={() => setActiveTab('create')}
             className={`tab-button ${activeTab === 'create' ? 'active' : 'inactive'}`}
           >
-            강연룸 생성
+            강의룸 생성
           </button>
           <button
             type="button"
@@ -121,12 +121,12 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           </button>
         </div>
 
-        {/* 강연룸 생성 탭 */}
+        {/* 강의룸 생성 탭 */}
         {activeTab === 'create' && (
           <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-2">
-              강연룸 이름
+              강의룸 이름
             </label>
             <input
               type="text"
@@ -141,7 +141,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
 
           <div>
             <label htmlFor="adminName" className="block text-sm font-medium text-gray-700 mb-2">
-              강연자 이름
+              강의자 이름
             </label>
             <input
               type="text"
@@ -149,7 +149,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               value={adminName}
               onChange={(e) => setAdminName(e.target.value)}
               className="w-full px-4 py-3 modern-input"
-              placeholder="예: 김강연"
+              placeholder="예: 김강의"
               disabled={loading}
               maxLength={20}
             />
@@ -181,7 +181,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               disabled={loading}
               className="w-full modern-btn modern-btn-primary modern-btn-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? '생성 중...' : '강연룸 생성'}
+              {loading ? '생성 중...' : '강의룸 생성'}
             </button>
           </form>
         )}

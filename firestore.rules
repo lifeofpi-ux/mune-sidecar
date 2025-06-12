@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 강연룸 컬렉션
+    // 강의룸 컬렉션
     match /chatRooms/{roomId} {
       allow read, write: if true;
     }

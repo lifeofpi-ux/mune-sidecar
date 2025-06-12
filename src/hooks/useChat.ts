@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   collection, 
   addDoc, 
@@ -10,22 +10,103 @@ import {
   getDocs,
   doc,
   deleteDoc,
-  updateDoc
+  updateDoc,
+  setDoc,
+  increment,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { ChatMessage, ChatRoom, Poll } from '../types';
+import { ChatMessage, ChatRoom, Poll, User } from '../types';
 
-export const useChat = (roomId: string | null) => {
+export const useChat = (roomId: string | null, user: User | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [onlineUsers, setOnlineUsers] = useState<number>(0);
+  const isPresenceSetup = useRef(false);
+
+  // 사용자 접속 상태 관리
+  const setupUserPresence = async () => {
+    if (!roomId || !user || isPresenceSetup.current) return;
+    
+    try {
+      // 세션 ID를 문서 ID로 사용하고, 닉네임은 데이터로 저장
+      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), user.sessionId);
+      const roomRef = doc(db, 'chatRooms', roomId);
+
+      // 이미 접속되어 있는지 확인
+      const existingPresence = await getDoc(userPresenceRef);
+      if (existingPresence.exists()) {
+        console.log('User already online, skipping presence setup');
+        isPresenceSetup.current = true;
+        return;
+      }
+
+      // 사용자의 접속 상태 문서 생성 (세션 ID로 문서 생성, 닉네임 저장)
+      await setDoc(userPresenceRef, {
+        nickname: user.name,
+        sessionId: user.sessionId,
+        status: 'online',
+        joinedAt: serverTimestamp()
+      });
+
+      // 채팅방의 접속자 수 증가
+      await updateDoc(roomRef, {
+        onlineCount: increment(1)
+      });
+
+      isPresenceSetup.current = true;
+
+      // 브라우저가 닫히거나 페이지가 언로드될 때 실행
+      const handleBeforeUnload = async () => {
+        try {
+          await deleteDoc(userPresenceRef);
+          await updateDoc(roomRef, {
+            onlineCount: increment(-1)
+          });
+        } catch (error) {
+          console.error('Error cleaning up user presence:', error);
+        }
+      };
+
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    } catch (error) {
+      console.error('Error setting up user presence:', error);
+    }
+  };
+
+  // 사용자 접속 해제
+  const cleanupUserPresence = async () => {
+    if (!roomId || !user || !isPresenceSetup.current) return;
+    
+    try {
+      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), user.sessionId);
+      const roomRef = doc(db, 'chatRooms', roomId);
+      
+      const existingPresence = await getDoc(userPresenceRef);
+      if (existingPresence.exists()) {
+        await deleteDoc(userPresenceRef);
+        await updateDoc(roomRef, {
+          onlineCount: increment(-1)
+        });
+      }
+      
+      isPresenceSetup.current = false;
+    } catch (error) {
+      console.error('Error cleaning up user presence:', error);
+    }
+  };
 
   useEffect(() => {
-    if (!roomId) {
+    if (!roomId || !user) {
       setMessages([]);
       setLoading(false);
       return;
     }
 
+    // 사용자 접속 상태 설정
+    setupUserPresence();
+
+    // 메시지 구독
     const messagesRef = collection(db, 'messages');
     const q = query(
       messagesRef,
@@ -33,7 +114,7 @@ export const useChat = (roomId: string | null) => {
       orderBy('timestamp', 'asc')
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribeMessages = onSnapshot(q, (snapshot) => {
       const newMessages: ChatMessage[] = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
@@ -59,8 +140,36 @@ export const useChat = (roomId: string | null) => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, [roomId]);
+    // 접속자 수 구독
+    const roomRef = doc(db, 'chatRooms', roomId);
+    const unsubscribeOnlineUsers = onSnapshot(roomRef, (doc) => {
+      if (doc.exists()) {
+        setOnlineUsers(doc.data().onlineCount || 0);
+      }
+    });
+
+    // 네트워크 상태 모니터링
+    const handleOnline = () => {
+      if (!isPresenceSetup.current) {
+        setupUserPresence();
+      }
+    };
+
+    const handleOffline = async () => {
+      await cleanupUserPresence();
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      cleanupUserPresence();
+      unsubscribeMessages();
+      unsubscribeOnlineUsers();
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [roomId, user]);
 
   const sendMessage = async (userName: string, message: string, isAdmin: boolean = false, poll?: Poll) => {
     if (!roomId || !message.trim()) return;
@@ -132,23 +241,14 @@ export const useChat = (roomId: string | null) => {
     }
   };
 
-  const addWordCloudResponse = async (messageId: string, _pollId: string, response: string, userId: string) => {
+  const addWordCloudResponse = async (messageId: string, pollId: string, response: string, userId: string) => {
     try {
       const messageRef = doc(db, 'messages', messageId);
-      
-      // 현재 메시지에서 설문조사 데이터 찾기
       const currentMessage = messages.find(msg => msg.id === messageId);
-      if (!currentMessage?.poll || currentMessage.poll.type !== 'word-cloud') return;
+      if (!currentMessage?.poll) return;
 
       const poll = currentMessage.poll;
-      
-      // 이미 응답했는지 확인
-      const hasResponded = poll.wordCloudResponses?.some(resp => resp.includes(`[${userId}]`)) || false;
-      if (hasResponded) return;
-
-      // 응답 추가 (사용자 ID 포함하여 중복 방지)
-      const newResponse = `${response} [${userId}]`;
-      const updatedResponses = [...(poll.wordCloudResponses || []), newResponse];
+      const updatedResponses = [...(poll.wordCloudResponses || []), { userId, response }];
 
       await updateDoc(messageRef, {
         'poll.wordCloudResponses': updatedResponses
@@ -158,7 +258,15 @@ export const useChat = (roomId: string | null) => {
     }
   };
 
-  return { messages, loading, sendMessage, voteOnPoll, closePoll, addWordCloudResponse };
+  return { 
+    messages, 
+    loading, 
+    sendMessage, 
+    voteOnPoll, 
+    closePoll, 
+    addWordCloudResponse, 
+    onlineUsers
+  };
 };
 
 export const useRoomList = () => {
@@ -215,7 +323,34 @@ export const useRoomList = () => {
 };
 
 export const useChatRoom = () => {
-  const [_rooms, _setRooms] = useState<ChatRoom[]>([]);
+  const [rooms, setRooms] = useState<ChatRoom[]>([]);
+
+  // 닉네임 중복 검사 함수
+  const checkNicknameAvailability = async (roomId: string, nickname: string): Promise<boolean> => {
+    try {
+      const onlineUsersRef = collection(db, 'chatRooms', roomId, 'onlineUsers');
+      const snapshot = await getDocs(onlineUsersRef);
+      
+      // 현재 접속 중인 사용자들의 닉네임 확인
+      const existingNicknames = new Set<string>();
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.nickname) {
+          existingNicknames.add(data.nickname);
+        }
+      });
+      
+      return !existingNicknames.has(nickname);
+    } catch (error) {
+      console.error('Error checking nickname availability:', error);
+      return false;
+    }
+  };
+
+  // 세션 ID 생성 함수
+  const generateSessionId = (): string => {
+    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   const createRoom = async (name: string, adminPassword: string): Promise<string> => {
     try {
@@ -260,5 +395,80 @@ export const useChatRoom = () => {
     return room?.adminPassword === password;
   };
 
-  return { rooms: _rooms, createRoom, getRoomById, verifyAdminPassword };
+  const incrementOnlineUsers = async (roomId: string, userName: string, sessionId?: string) => {
+    try {
+      // 세션 ID가 제공된 경우 새로운 방식 사용, 아니면 기존 방식 유지 (하위 호환성)
+      const documentId = sessionId || userName;
+      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), documentId);
+      
+      // 이미 접속되어 있는지 확인
+      const existingPresence = await getDoc(userPresenceRef);
+      if (existingPresence.exists()) {
+        console.log('User already online, skipping increment');
+        return;
+      }
+
+      // 사용자의 접속 상태를 나타내는 문서 생성
+      const presenceData = sessionId ? {
+        nickname: userName,
+        sessionId: sessionId,
+        status: 'online',
+        joinedAt: serverTimestamp()
+      } : {
+        status: 'online'
+      };
+
+      await setDoc(userPresenceRef, presenceData);
+
+      // 채팅방의 접속자 수 업데이트
+      const roomRef = doc(db, 'chatRooms', roomId);
+      await updateDoc(roomRef, {
+        onlineCount: increment(1)
+      });
+    } catch (error) {
+      console.error('Error incrementing online users:', error);
+      throw error;
+    }
+  };
+
+  const decrementOnlineUsers = async (roomId: string, userName: string, sessionId?: string) => {
+    try {
+      // 세션 ID가 제공된 경우 새로운 방식 사용, 아니면 기존 방식 유지 (하위 호환성)
+      const documentId = sessionId || userName;
+      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), documentId);
+      
+      // 사용자의 접속 상태 문서가 존재하는지 확인
+      const existingPresence = await getDoc(userPresenceRef);
+      if (!existingPresence.exists()) {
+        console.log('User presence document not found, skipping decrement');
+        return;
+      }
+
+      // 사용자의 접속 상태 문서 삭제
+      await deleteDoc(userPresenceRef);
+
+      // 채팅방의 접속자 수 업데이트
+      const roomRef = doc(db, 'chatRooms', roomId);
+      const roomDoc = await getDoc(roomRef);
+      if (roomDoc.exists() && roomDoc.data().onlineCount > 0) {
+        await updateDoc(roomRef, {
+          onlineCount: increment(-1)
+        });
+      }
+    } catch (error) {
+      console.error('Error decrementing online users:', error);
+      throw error;
+    }
+  };
+
+  return { 
+    rooms, 
+    createRoom, 
+    getRoomById, 
+    verifyAdminPassword,
+    incrementOnlineUsers,
+    decrementOnlineUsers,
+    checkNicknameAvailability,
+    generateSessionId
+  };
 }; 

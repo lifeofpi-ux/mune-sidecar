@@ -9,20 +9,27 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [roomName, setRoomName] = useState<string>('');
 
+  // 세션 ID 생성 함수
+  const generateSessionId = (): string => {
+    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
+
   const handleRoomCreated = (roomId: string, name: string, adminName: string) => {
     setUser({
       name: adminName,
       isAdmin: true,
-      roomId
+      roomId,
+      sessionId: generateSessionId()
     });
     setRoomName(name);
   };
 
-  const handleUserJoined = (userName: string, roomId: string, name: string) => {
+  const handleUserJoined = (userName: string, roomId: string, name: string, sessionId: string) => {
     setUser({
       name: userName,
       isAdmin: false,
-      roomId
+      roomId,
+      sessionId
     });
     setRoomName(name);
   };

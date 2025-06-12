@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useChatRoom } from '../hooks/useChat';
 
 interface UserLoginProps {
-  onUserJoined: (userName: string, roomId: string, roomName: string) => void;
+  onUserJoined: (userName: string, roomId: string, roomName: string, sessionId: string) => void;
 }
 
 const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
@@ -13,25 +13,25 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
   const [error, setError] = useState('');
   const [roomInfo, setRoomInfo] = useState<{ id: string; name: string } | null>(null);
 
-  const { getRoomById } = useChatRoom();
+  const { getRoomById, incrementOnlineUsers, checkNicknameAvailability, generateSessionId } = useChatRoom();
   const roomId = searchParams.get('room');
 
   useEffect(() => {
     const loadRoomInfo = async () => {
       if (!roomId) {
-        setError('유효하지 않은 강연룸 링크입니다.');
+        setError('유효하지 않은 강의룸 링크입니다.');
         return;
       }
 
       try {
         const room = await getRoomById(roomId);
         if (!room || !room.isActive) {
-          setError('존재하지 않거나 비활성화된 강연룸입니다.');
+          setError('존재하지 않거나 비활성화된 강의룸입니다.');
           return;
         }
         setRoomInfo({ id: room.id, name: room.name });
       } catch (error) {
-        setError('강연룸 정보를 불러오는데 실패했습니다.');
+        setError('강의룸 정보를 불러오는데 실패했습니다.');
         console.error('Error loading room info:', error);
       }
     };
@@ -47,7 +47,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
     }
 
     if (!roomInfo) {
-      setError('강연룸 정보가 없습니다.');
+      setError('강의룸 정보가 없습니다.');
       return;
     }
 
@@ -55,9 +55,21 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
     setError('');
 
     try {
-      onUserJoined(userName.trim(), roomInfo.id, roomInfo.name);
+      // 닉네임 중복 검사
+      const isAvailable = await checkNicknameAvailability(roomInfo.id, userName.trim());
+      if (!isAvailable) {
+        setError('이미 사용 중인 닉네임입니다. 다른 닉네임을 선택해주세요.');
+        setLoading(false);
+        return;
+      }
+
+      // 세션 ID 생성
+      const sessionId = generateSessionId();
+      
+      await incrementOnlineUsers(roomInfo.id, userName.trim(), sessionId);
+      onUserJoined(userName.trim(), roomInfo.id, roomInfo.name, sessionId);
     } catch (error) {
-      setError('강연룸 입장에 실패했습니다. 다시 시도해주세요.');
+      setError('강의룸 입장에 실패했습니다. 다시 시도해주세요.');
       console.error('Error joining room:', error);
     } finally {
       setLoading(false);
@@ -69,7 +81,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4 relative">
         <div className="modern-card p-8 w-full max-w-md text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">오류</h1>
-          <p className="text-gray-600">유효하지 않은 강연룸 링크입니다.</p>
+          <p className="text-gray-600">유효하지 않은 강의룸 링크입니다.</p>
         </div>
         
         {/* 크레딧 */}
@@ -86,7 +98,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4 relative">
       <div className="modern-card p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">강연룸 입장</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">강의룸 입장</h1>
           {roomInfo && (
             <p className="text-gray-600">
               <span className="font-semibold">{roomInfo.name}</span>에 참여하기
@@ -123,13 +135,13 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
             disabled={loading || !roomInfo || !userName.trim()}
             className="w-full modern-btn modern-btn-success modern-btn-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '입장 중...' : '강연룸 입장'}
+            {loading ? '입장 중...' : '강의룸 입장'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            강연을 통해 함께 소통해보세요.
+            강의을 통해 함께 소통해보세요.
           </p>
         </div>
       </div>
