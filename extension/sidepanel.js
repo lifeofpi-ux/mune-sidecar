@@ -1,5 +1,5 @@
 // 설정
-const CHAT_SITE_URL = 'http://localhost:3003';
+const CHAT_SITE_URL = 'https://sidecar-nine.vercel.app';
 const IFRAME_LOAD_TIMEOUT = 10000; // 10초
 
 // DOM 요소들

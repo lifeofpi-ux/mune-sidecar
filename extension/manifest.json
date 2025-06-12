@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "MUNE 사이드패널",
+  "name": "MUNE",
   "version": "1.0.0",
-  "description": "강연 및 프레젠테이션을 위한 실시간 채팅 사이드패널",
+  "description": "강연 및 프레젠테이션을 위한 실시간 채팅 사이드카",
   
   "permissions": [
-    "sidePanel"
+    "sidePanel",
+    "https://sidecar-nine.vercel.app/*"
   ],
   
   "side_panel": {
@@ -34,6 +35,6 @@
   },
   
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://sidecar-nine.vercel.app;"
   }
 } 
