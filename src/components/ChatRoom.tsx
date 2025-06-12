@@ -6,7 +6,7 @@ import QRCodeGenerator from './QRCodeGenerator';
 import PollModal from './PollModal';
 import PollCard from './PollCard';
 import RandomPicker from './RandomPicker';
-import { PlusIcon, GiftIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, GiftIcon, QrCodeIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
 
 interface ChatRoomProps {
   user: User;
@@ -130,18 +130,19 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold text-gray-900">{roomName}</h1>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg font-semibold text-gray-900 truncate">{roomName}</h1>
           <p className="text-sm text-gray-500 flex items-center">
             {user.isAdmin && (
               <span className="badge badge-speaker mr-1 py-0.5" style={{ padding: '0.1rem 0.5rem' }}>강의자</span>
             )}
-            {user.name}
-            <span className="ml-2 text-gray-400">•</span>
-            <span className="ml-2 text-gray-500">현재 {onlineUsers}명 접속 중</span>
+            <span className="truncate">{user.name}</span>
+            <span className="ml-2 text-gray-400 hidden sm:inline">•</span>
+            <span className="ml-2 text-gray-500 hidden sm:inline">현재 {onlineUsers}명 접속 중</span>
+            <span className="ml-2 text-gray-500 sm:hidden">{onlineUsers}명</span>
           </p>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           {user.isAdmin && (
             <>
               <button
@@ -150,21 +151,25 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                 title="랜덤 추첨"
               >
                 <GiftIcon className="w-4 h-4" />
-                <span>추첨</span>
+                <span className="hidden sm:inline">추첨</span>
               </button>
               <button
                 onClick={() => setShowQR(!showQR)}
-                className="modern-btn modern-btn-primary modern-btn-sm"
+                className="modern-btn modern-btn-primary modern-btn-sm flex items-center space-x-1"
+                title={showQR ? 'QR 코드 숨기기' : 'QR 코드 보기'}
               >
-                {showQR ? 'QR 숨기기' : 'QR 보기'}
+                <QrCodeIcon className="w-4 h-4" />
+                <span className="hidden sm:inline">{showQR ? 'QR 숨기기' : 'QR 보기'}</span>
               </button>
             </>
           )}
           <button
             onClick={handleLeave}
-            className="modern-btn modern-btn-secondary modern-btn-sm"
+            className="modern-btn modern-btn-secondary modern-btn-sm flex items-center space-x-1"
+            title="나가기"
           >
-            나가기
+            <ArrowLeftOnRectangleIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">나가기</span>
           </button>
         </div>
       </div>
