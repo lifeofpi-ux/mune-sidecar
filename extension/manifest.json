@@ -5,7 +5,9 @@
   "description": "강의 및 프레젠테이션을 위한 실시간 채팅 사이드카",
   
   "permissions": [
-    "sidePanel",
+    "sidePanel"
+  ],
+  "host_permissions": [
     "https://sidecar-nine.store/*"
   ],
   
