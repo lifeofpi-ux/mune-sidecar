@@ -54,10 +54,17 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   };
 
   const handleRoomClick = (roomId: string, roomName: string) => {
+    // 강의자 이름이 입력되었는지 확인
+    if (!adminName.trim()) {
+      setError('강의자 이름을 먼저 입력해주세요.');
+      return;
+    }
+    
     // 관리자 입장 시 비밀번호 입력 모달 표시
     setPendingAction({ type: 'enter', roomId, roomName });
     setPasswordInput('');
     setPasswordError('');
+    setError(''); // 이전 오류 메시지 초기화
     setModal({
       isOpen: true,
       type: 'password',
@@ -252,19 +259,30 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           <div>
             <div className="mb-4">
               <label htmlFor="manageAdminName" className="block text-sm font-medium text-gray-700 mb-2">
-                강의자 이름
+                강의자 이름 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 id="manageAdminName"
                 value={adminName}
-                onChange={(e) => setAdminName(e.target.value)}
+                onChange={(e) => {
+                  setAdminName(e.target.value);
+                  if (error && e.target.value.trim()) {
+                    setError(''); // 이름을 입력하면 오류 메시지 제거
+                  }
+                }}
                 className="w-full px-4 py-3 modern-input"
                 placeholder="강의룸 입장 시 사용할 이름"
                 maxLength={20}
               />
               <p className="text-xs text-gray-500 mt-1">강의룸 입장 시 표시될 이름입니다.</p>
             </div>
+            
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
             
             {roomsLoading ? (
               <div className="text-center py-8">
