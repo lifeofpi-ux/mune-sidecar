@@ -263,11 +263,26 @@ export const useChat = (roomId: string | null, user: User | null) => {
       if (!currentMessage?.poll) return;
 
       const poll = currentMessage.poll;
-      const updatedResponses = [...(poll.wordCloudResponses || []), { userId, response }];
+      
+      // 이미 응답했는지 확인
+      const hasResponded = poll.wordCloudResponses?.some(resp => 
+        typeof resp === 'string' && resp.includes(`[${userId}]`)
+      ) || false;
+      
+      if (hasResponded) {
+        console.log('User has already responded to this word cloud');
+        return;
+      }
+
+      // 응답을 "[userId] response" 형태로 저장
+      const formattedResponse = `[${userId}] ${response}`;
+      const updatedResponses = [...(poll.wordCloudResponses || []), formattedResponse];
 
       await updateDoc(messageRef, {
         'poll.wordCloudResponses': updatedResponses
       });
+      
+      console.log('Word cloud response added successfully:', formattedResponse);
     } catch (error) {
       console.error('Error adding word cloud response:', error);
     }

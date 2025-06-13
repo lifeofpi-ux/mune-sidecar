@@ -111,7 +111,13 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   const handleWordCloudResponse = async (pollId: string, response: string) => {
     const messageWithPoll = messages.find(msg => msg.poll?.id === pollId);
     if (messageWithPoll) {
-      await addWordCloudResponse(messageWithPoll.id, pollId, response, user.name);
+      try {
+        await addWordCloudResponse(messageWithPoll.id, pollId, response, user.name);
+        // 시스템 메시지 제거 - 워드 클라우드에만 반영
+      } catch (error) {
+        console.error('Error adding word cloud response:', error);
+        alert('워드 클라우드 응답 전송에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 
@@ -208,6 +214,38 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
           messages.map((msg) => {
             const latestAdminMessage = getLatestAdminMessage();
             const isLatestAdminMessage = user.isAdmin && msg.isAdmin && latestAdminMessage?.id === msg.id;
+            const isSystemMessage = msg.userName === '시스템';
+            
+            // 시스템 메시지는 중앙 정렬로 표시
+            if (isSystemMessage) {
+              return (
+                <div key={msg.id}>
+                  <div className="flex justify-center">
+                    <div className="bg-green-50 border border-green-200 px-3 py-2 rounded-full max-w-md">
+                      <p className="text-sm text-green-700 text-center">
+                        {msg.message}
+                      </p>
+                      <p className="text-xs text-green-500 text-center mt-1">
+                        {formatTime(msg.timestamp)}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* 설문조사 카드 */}
+                  {msg.poll && (
+                    <PollCard
+                      key={`poll-${msg.poll.id}`}
+                      poll={msg.poll}
+                      currentUserId={user.name}
+                      isAdmin={user.isAdmin}
+                      onVote={handleVote}
+                      onClosePoll={handleClosePoll}
+                      onWordCloudResponse={handleWordCloudResponse}
+                    />
+                  )}
+                </div>
+              );
+            }
             
             return (
               <div key={msg.id}>
