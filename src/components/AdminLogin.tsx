@@ -178,7 +178,14 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4 relative">
       <div className="modern-card p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">MUNE</h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img 
+              src="/dist/logo.webp" 
+              alt="MUNE Logo" 
+              className="w-10 h-10 object-contain"
+            />
+            <h1 className="text-3xl font-bold text-gray-900">MUNE</h1>
+          </div>
           <p className="text-gray-600">강의 룸 관리</p>
         </div>
 
