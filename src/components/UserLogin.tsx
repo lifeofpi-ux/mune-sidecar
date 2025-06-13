@@ -123,7 +123,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
               id="userName"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              className="w-full px-4 py-3 modern-input"
+              className="w-full px-4 py-2 modern-input"
               placeholder="채팅에서 사용할 이름을 입력하세요"
               disabled={loading || !roomInfo}
               maxLength={20}
@@ -140,7 +140,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
           <button
             type="submit"
             disabled={loading || !roomInfo || !userName.trim()}
-            className="w-full modern-btn modern-btn-success modern-btn-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full modern-btn modern-btn-success py-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? '입장 중...' : '강의룸 입장'}
           </button>

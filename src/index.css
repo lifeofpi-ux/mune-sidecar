@@ -55,6 +55,7 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: none;
   cursor: pointer;
+  padding: 10px 14px;
 }
 
 .modern-btn::before {
@@ -148,15 +149,15 @@ body {
 
 /* Small Button */
 .modern-btn-sm {
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 6px 12px;
+  font-size: 13px;
   border-radius: 10px;
 }
 
 /* Large Button */
 .modern-btn-lg {
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: 10px 20px;
+  font-size: 15px;
   border-radius: 14px;
 }
 

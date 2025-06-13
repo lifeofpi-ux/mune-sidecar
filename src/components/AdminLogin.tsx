@@ -344,7 +344,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               id="roomName"
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
-              className="w-full px-4 py-3 modern-input"
+              className="w-full px-4 py-2 modern-input"
               placeholder="예: 2025 트라이팟 컨퍼런스"
               disabled={loading}
             />
@@ -359,7 +359,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               id="adminName"
               value={adminName}
               onChange={(e) => setAdminName(e.target.value)}
-              className="w-full px-4 py-3 modern-input"
+              className="w-full px-4 py-2 modern-input"
               placeholder="예: 김강의"
               disabled={loading}
               maxLength={20}
@@ -375,7 +375,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               id="adminPassword"
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
-              className="w-full px-4 py-3 modern-input"
+              className="w-full px-4 py-2 modern-input"
               placeholder="관리자 비밀번호를 입력하세요"
               disabled={loading}
               autoComplete="current-password"
@@ -391,7 +391,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full modern-btn modern-btn-primary modern-btn-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full modern-btn modern-btn-primary py-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? '생성 중...' : '강의룸 생성'}
             </button>
@@ -494,7 +494,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                         setSuperAdminPassword(e.target.value);
                         setSuperAdminError('');
                       }}
-                      className="w-full px-4 py-3 modern-input"
+                      className="w-full px-4 py-2 modern-input"
                       placeholder="슈퍼 관리자 비밀번호"
                       autoComplete="current-password"
                       onKeyPress={(e) => {
@@ -558,7 +558,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                           setModalAdminName(e.target.value);
                           setModalAdminNameError('');
                         }}
-                        className="w-full px-4 py-3 modern-input"
+                        className="w-full px-4 py-2 modern-input"
                         placeholder="채팅에서 표시될 이름"
                         maxLength={20}
                       />
@@ -582,7 +582,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                           setPasswordInput(e.target.value);
                           setPasswordError('');
                         }}
-                        className="w-full px-4 py-3 modern-input"
+                        className="w-full px-4 py-2 modern-input"
                         placeholder="비밀번호를 입력하세요"
                         autoComplete="current-password"
                         onKeyPress={(e) => {

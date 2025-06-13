@@ -335,13 +335,13 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="메시지를 입력하세요..."
-            className="flex-1 px-4 py-3 modern-input"
+            className="flex-1 px-4 py-2 modern-input"
             maxLength={500}
           />
           <button
             type="submit"
             disabled={!message.trim()}
-            className="modern-btn modern-btn-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="modern-btn modern-btn-primary px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             전송
           </button>

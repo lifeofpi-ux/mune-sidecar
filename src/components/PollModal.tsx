@@ -151,7 +151,7 @@ const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onCreatePoll }) 
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="w-full px-4 py-3 modern-input resize-none"
+              className="w-full px-4 py-2 modern-input resize-none"
               placeholder="예: 다음 주제 중 가장 관심 있는 것은?"
               rows={2}
               maxLength={200}
