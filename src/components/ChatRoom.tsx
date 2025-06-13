@@ -6,7 +6,8 @@ import QRCodeGenerator from './QRCodeGenerator';
 import PollModal from './PollModal';
 import PollCard from './PollCard';
 import RandomPicker from './RandomPicker';
-import { PlusIcon, GiftIcon, QrCodeIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
+import TimerModal from './TimerModal';
+import { PlusIcon, GiftIcon, QrCodeIcon, ArrowLeftOnRectangleIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 interface ChatRoomProps {
   user: User;
@@ -19,6 +20,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   const [showQR, setShowQR] = useState(false);
   const [showPollModal, setShowPollModal] = useState(false);
   const [showRandomPicker, setShowRandomPicker] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -147,15 +149,23 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
             <>
               <button
                 onClick={() => setShowRandomPicker(true)}
-                className="modern-btn modern-btn-accent modern-btn-sm flex items-center space-x-1"
+                className="modern-btn modern-btn-accent modern-btn-sm flex items-center space-x-1 !px-2 sm:!px-3"
                 title="랜덤 추첨"
               >
                 <GiftIcon className="w-4 h-4" />
                 <span className="hidden sm:inline">추첨</span>
               </button>
               <button
+                onClick={() => setShowTimer(true)}
+                className="modern-btn modern-btn-warning modern-btn-sm flex items-center space-x-1 !px-2 sm:!px-3"
+                title="타이머"
+              >
+                <ClockIcon className="w-4 h-4" />
+                <span className="hidden sm:inline">타이머</span>
+              </button>
+              <button
                 onClick={() => setShowQR(!showQR)}
-                className="modern-btn modern-btn-primary modern-btn-sm flex items-center space-x-1"
+                className="modern-btn modern-btn-primary modern-btn-sm flex items-center space-x-1 !px-2 sm:!px-3"
                 title={showQR ? 'QR 코드 숨기기' : 'QR 코드 보기'}
               >
                 <QrCodeIcon className="w-4 h-4" />
@@ -165,7 +175,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
           )}
           <button
             onClick={handleLeave}
-            className="modern-btn modern-btn-secondary modern-btn-sm flex items-center space-x-1"
+            className="modern-btn modern-btn-secondary modern-btn-sm flex items-center space-x-1 !px-2 sm:!px-3"
             title="나가기"
           >
             <ArrowLeftOnRectangleIcon className="w-4 h-4" />
@@ -315,6 +325,12 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
         onlineUsersList={onlineUsersList}
         roomName={roomName}
         adminName={user.name}
+      />
+
+      {/* 타이머 모달 */}
+      <TimerModal
+        isOpen={showTimer}
+        onClose={() => setShowTimer(false)}
       />
     </div>
   );
