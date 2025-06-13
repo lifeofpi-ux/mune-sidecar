@@ -36,14 +36,81 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
     roomId: string;
     roomName: string;
   } | null>(null);
+  
+  // 슈퍼 관리자 관련 상태
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [superAdminPassword, setSuperAdminPassword] = useState('');
+  const [superAdminError, setSuperAdminError] = useState('');
+  const [showSuperAdminModal, setShowSuperAdminModal] = useState(false);
 
   const { createRoom, verifyAdminPassword } = useChatRoom();
   const { rooms, loading: roomsLoading, deleteRoom } = useRoomList();
+  
+  // 슈퍼 관리자 비밀번호 (실제 환경에서는 환경변수나 보안 저장소 사용 권장)
+  const SUPER_ADMIN_PASSWORD = 'mune2025super';
+
+  // 슈퍼 관리자 로그인 처리
+  const handleSuperAdminLogin = () => {
+    if (superAdminPassword === SUPER_ADMIN_PASSWORD) {
+      setIsSuperAdmin(true);
+      setShowSuperAdminModal(false);
+      setSuperAdminPassword('');
+      setSuperAdminError('');
+    } else {
+      setSuperAdminError('슈퍼 관리자 비밀번호가 올바르지 않습니다.');
+    }
+  };
+
+  // 슈퍼 관리자 로그아웃
+  const handleSuperAdminLogout = () => {
+    setIsSuperAdmin(false);
+  };
+
+  // 설정 버튼 클릭
+  const handleSettingsClick = () => {
+    if (isSuperAdmin) {
+      handleSuperAdminLogout();
+    } else {
+      setShowSuperAdminModal(true);
+      setSuperAdminPassword('');
+      setSuperAdminError('');
+    }
+  };
 
   const handleDeleteRoom = async (roomId: string, roomName: string, e: React.MouseEvent) => {
     e.stopPropagation(); // 카드 클릭 이벤트 방지
     
-    // 비밀번호 입력 모달 표시
+    // 슈퍼 관리자인 경우 바로 삭제
+    if (isSuperAdmin) {
+      setModal({
+        isOpen: true,
+        type: 'confirm',
+        title: '강의룸 삭제',
+        message: `"${roomName}" 강의룸을 삭제하시겠습니까?`,
+        onConfirm: async () => {
+          try {
+            await deleteRoom(roomId);
+            setModal({
+              isOpen: true,
+              type: 'alert',
+              title: '삭제 완료',
+              message: '강의룸이 삭제되었습니다.'
+            });
+          } catch (error) {
+            setModal({
+              isOpen: true,
+              type: 'alert',
+              title: '삭제 실패',
+              message: '강의룸 삭제에 실패했습니다. 다시 시도해주세요.'
+            });
+            console.error('Error deleting room:', error);
+          }
+        }
+      });
+      return;
+    }
+    
+    // 일반 관리자인 경우 비밀번호 입력 모달 표시
     setPendingAction({ type: 'delete', roomId, roomName });
     setPasswordInput('');
     setPasswordError('');
@@ -56,7 +123,23 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   };
 
   const handleRoomClick = (roomId: string, roomName: string) => {
-    // 관리자 입장 시 비밀번호 및 이름 입력 모달 표시
+    // 슈퍼 관리자인 경우 이름만 입력받고 바로 입장
+    if (isSuperAdmin) {
+      setModalAdminName('');
+      setModalAdminNameError('');
+      setModal({
+        isOpen: true,
+        type: 'password',
+        title: '슈퍼 관리자 입장',
+        message: `"${roomName}" 강의룸에 슈퍼 관리자로 입장하세요.`
+      });
+      setPendingAction({ type: 'enter', roomId, roomName });
+      setPasswordInput('super'); // 슈퍼 관리자 표시용
+      setPasswordError('');
+      return;
+    }
+    
+    // 일반 관리자 입장 시 비밀번호 및 이름 입력 모달 표시
     setPendingAction({ type: 'enter', roomId, roomName });
     setPasswordInput('');
     setPasswordError('');
@@ -71,8 +154,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   };
 
   const handlePasswordConfirm = async () => {
-    if (!pendingAction || !passwordInput.trim()) {
-      setPasswordError('비밀번호를 입력해주세요.');
+    if (!pendingAction) {
       return;
     }
 
@@ -83,6 +165,26 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
     }
 
     try {
+      // 슈퍼 관리자인 경우 비밀번호 검증 생략
+      if (isSuperAdmin && pendingAction.type === 'enter') {
+        // 슈퍼 관리자로 해당 강의룸에 입장
+        onRoomCreated(pendingAction.roomId, pendingAction.roomName, modalAdminName.trim());
+        
+        // 상태 초기화
+        setPendingAction(null);
+        setPasswordInput('');
+        setPasswordError('');
+        setModalAdminName('');
+        setModalAdminNameError('');
+        return;
+      }
+
+      // 일반 관리자인 경우 비밀번호 검증
+      if (!passwordInput.trim()) {
+        setPasswordError('비밀번호를 입력해주세요.');
+        return;
+      }
+
       // 비밀번호 검증
       const isValidPassword = await verifyAdminPassword(pendingAction.roomId, passwordInput.trim());
       
@@ -176,6 +278,22 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4 relative">
+      {/* 설정 버튼 */}
+      <button
+        onClick={handleSettingsClick}
+        className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
+          isSuperAdmin 
+            ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg' 
+            : 'bg-white hover:bg-gray-50 text-gray-600 shadow-md'
+        }`}
+        title={isSuperAdmin ? '슈퍼 관리자 로그아웃' : '슈퍼 관리자 로그인'}
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+
       <div className="modern-card p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-2">
@@ -185,8 +303,15 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               className="w-10 h-10 object-contain"
             />
             <h1 className="text-3xl font-bold text-gray-900">MUNE</h1>
+            {isSuperAdmin && (
+              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                SUPER
+              </span>
+            )}
           </div>
-          <p className="text-gray-600">강의 룸 관리</p>
+          <p className="text-gray-600">
+            {isSuperAdmin ? '슈퍼 관리자 모드' : '강의 룸 관리'}
+          </p>
         </div>
 
         {/* 탭 네비게이션 */}
@@ -347,6 +472,69 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         />
       )}
       
+      {/* 슈퍼 관리자 로그인 모달 */}
+      {showSuperAdminModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">슈퍼 관리자 로그인</h3>
+              <p className="text-gray-600 mb-4">슈퍼 관리자 비밀번호를 입력하세요.</p>
+              
+              <form onSubmit={(e) => { e.preventDefault(); handleSuperAdminLogin(); }}>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="superAdminPasswordInput" className="block text-sm font-medium text-gray-700 mb-2">
+                      슈퍼 관리자 비밀번호 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      id="superAdminPasswordInput"
+                      value={superAdminPassword}
+                      onChange={(e) => {
+                        setSuperAdminPassword(e.target.value);
+                        setSuperAdminError('');
+                      }}
+                      className="w-full px-4 py-3 modern-input"
+                      placeholder="슈퍼 관리자 비밀번호"
+                      autoComplete="current-password"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSuperAdminLogin();
+                        }
+                      }}
+                    />
+                    {superAdminError && (
+                      <p className="text-sm text-red-600 mt-1">{superAdminError}</p>
+                    )}
+                  </div>
+                
+                  <div className="flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowSuperAdminModal(false);
+                        setSuperAdminPassword('');
+                        setSuperAdminError('');
+                      }}
+                      className="flex-1 modern-btn modern-btn-secondary p-2"
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 modern-btn modern-btn-primary p-2"  
+                      disabled={!superAdminPassword.trim()}
+                    >
+                      로그인
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 비밀번호 입력 모달 */}
       {modal.type === 'password' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -380,31 +568,34 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                     </div>
                   )}
                   
-                  <div>
-                    <label htmlFor="passwordInput" className="block text-sm font-medium text-gray-700 mb-2">
-                      관리자 비밀번호 <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      id="passwordInput"
-                      value={passwordInput}
-                      onChange={(e) => {
-                        setPasswordInput(e.target.value);
-                        setPasswordError('');
-                      }}
-                      className="w-full px-4 py-3 modern-input"
-                      placeholder="비밀번호를 입력하세요"
-                      autoComplete="current-password"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          handlePasswordConfirm();
-                        }
-                      }}
-                    />
-                    {passwordError && (
-                      <p className="text-sm text-red-600 mt-1">{passwordError}</p>
-                    )}
-                  </div>
+                  {/* 슈퍼 관리자가 아닌 경우에만 비밀번호 입력 필드 표시 */}
+                  {!(isSuperAdmin && pendingAction?.type === 'enter') && (
+                    <div>
+                      <label htmlFor="passwordInput" className="block text-sm font-medium text-gray-700 mb-2">
+                        관리자 비밀번호 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        id="passwordInput"
+                        value={passwordInput}
+                        onChange={(e) => {
+                          setPasswordInput(e.target.value);
+                          setPasswordError('');
+                        }}
+                        className="w-full px-4 py-3 modern-input"
+                        placeholder="비밀번호를 입력하세요"
+                        autoComplete="current-password"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            handlePasswordConfirm();
+                          }
+                        }}
+                      />
+                      {passwordError && (
+                        <p className="text-sm text-red-600 mt-1">{passwordError}</p>
+                      )}
+                    </div>
+                  )}
                 
                   <div className="flex space-x-3">
                     <button
@@ -417,7 +608,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                     <button
                       type="submit"
                       className="flex-1 modern-btn modern-btn-primary p-2"  
-                      disabled={!passwordInput.trim()}
+                      disabled={
+                        (isSuperAdmin && pendingAction?.type === 'enter') 
+                          ? !modalAdminName.trim()
+                          : !passwordInput.trim()
+                      }
                     >
                       확인
                     </button>
