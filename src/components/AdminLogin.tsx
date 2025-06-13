@@ -227,7 +227,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               className="w-full px-4 py-3 modern-input"
               placeholder="관리자 비밀번호를 입력하세요"
               disabled={loading}
-              autocomplete="current-password"
+              autoComplete="current-password"
             />
           </div>
 
@@ -360,7 +360,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                       }}
                       className="w-full px-4 py-3 modern-input"
                       placeholder="비밀번호를 입력하세요"
-                      autocomplete="current-password"
+                      autoComplete="current-password"
                       onKeyPress={(e) => {
                         if (e.key === 'Enter') {
                           handlePasswordConfirm();
