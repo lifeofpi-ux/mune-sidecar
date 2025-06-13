@@ -206,8 +206,8 @@ const PollCard: React.FC<PollCardProps> = ({
             <div className="w-full h-64 rounded-lg border-2 border-gray-200 overflow-hidden">
               <WordCloud 
                 responses={poll.wordCloudResponses?.map(response => 
-                  response.replace(/\[.*?\]/g, '').trim()
-                ) || []} 
+                  typeof response === 'string' ? response.replace(/\[.*?\]/g, '').trim() : ''
+                ).filter(response => response.length > 0) || []} 
               />
             </div>
             

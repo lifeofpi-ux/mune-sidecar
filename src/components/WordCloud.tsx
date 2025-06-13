@@ -58,6 +58,11 @@ const WordCloud: React.FC<WordCloudProps> = ({ responses, width, height }) => {
     const wordCount: { [key: string]: number } = {};
     
     responses.forEach(response => {
+      // 타입 안전성 확인
+      if (typeof response !== 'string' || !response.trim()) {
+        return;
+      }
+      
       // 한글, 영문, 숫자만 추출하고 공백으로 분리
       const cleanText = response.replace(/[^\w\sㄱ-ㅎㅏ-ㅣ가-힣]/g, ' ');
       const words = cleanText.split(/\s+/).filter(word => word.length > 1);
