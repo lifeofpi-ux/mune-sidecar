@@ -6,7 +6,7 @@
   
   "permissions": [
     "sidePanel",
-    "https://sidecar-nine.vercel.app/*"
+    "https://sidecar-nine.store/*"
   ],
   
   "side_panel": {
@@ -35,6 +35,6 @@
   },
   
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://sidecar-nine.vercel.app;"
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://sidecar-nine.store;"
   }
 } 

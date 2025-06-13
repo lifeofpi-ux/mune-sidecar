@@ -1,5 +1,5 @@
 // 설정
-const CHAT_SITE_URL = 'https://sidecar-nine.vercel.app';
+const CHAT_SITE_URL = 'https://sidecar-nine.store';
 const IFRAME_LOAD_TIMEOUT = 10000; // 10초
 
 // DOM 요소들
