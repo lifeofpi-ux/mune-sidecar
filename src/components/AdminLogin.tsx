@@ -180,7 +180,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-2">
             <img 
-              src="/dist/logo.webp" 
+              src="/logo.webp" 
               alt="MUNE Logo" 
               className="w-10 h-10 object-contain"
             />
