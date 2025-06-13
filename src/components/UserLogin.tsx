@@ -100,7 +100,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
             <img 
-              src="/dist/logo.webp" 
+              src="/logo.webp" 
               alt="MUNE Logo" 
               className="w-10 h-10 object-contain"
             />
