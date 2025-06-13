@@ -29,6 +29,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   // 비밀번호 입력 관련 상태
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [modalAdminName, setModalAdminName] = useState('');
+  const [modalAdminNameError, setModalAdminNameError] = useState('');
   const [pendingAction, setPendingAction] = useState<{
     type: 'delete' | 'enter';
     roomId: string;
@@ -54,28 +56,29 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   };
 
   const handleRoomClick = (roomId: string, roomName: string) => {
-    // 강의자 이름이 입력되었는지 확인
-    if (!adminName.trim()) {
-      setError('강의자 이름을 먼저 입력해주세요.');
-      return;
-    }
-    
-    // 관리자 입장 시 비밀번호 입력 모달 표시
+    // 관리자 입장 시 비밀번호 및 이름 입력 모달 표시
     setPendingAction({ type: 'enter', roomId, roomName });
     setPasswordInput('');
     setPasswordError('');
-    setError(''); // 이전 오류 메시지 초기화
+    setModalAdminName('');
+    setModalAdminNameError('');
     setModal({
       isOpen: true,
       type: 'password',
       title: '관리자 입장',
-      message: `"${roomName}" 강의룸에 관리자로 입장하려면 비밀번호를 입력하세요.`
+      message: `"${roomName}" 강의룸에 관리자로 입장하세요.`
     });
   };
 
   const handlePasswordConfirm = async () => {
     if (!pendingAction || !passwordInput.trim()) {
       setPasswordError('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    // 관리자 입장 시에는 이름도 검증
+    if (pendingAction.type === 'enter' && !modalAdminName.trim()) {
+      setModalAdminNameError('강의자 이름을 입력해주세요.');
       return;
     }
 
@@ -108,15 +111,16 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           console.error('Error deleting room:', error);
         }
       } else if (pendingAction.type === 'enter') {
-        // 관리자 권한으로 해당 강의룸에 입장
-        const speakerName = adminName.trim() || '강의자';
-        onRoomCreated(pendingAction.roomId, pendingAction.roomName, speakerName);
+        // 관리자 권한으로 해당 강의룸에 입장 (모달에서 입력받은 이름 사용)
+        onRoomCreated(pendingAction.roomId, pendingAction.roomName, modalAdminName.trim());
       }
 
       // 상태 초기화
       setPendingAction(null);
       setPasswordInput('');
       setPasswordError('');
+      setModalAdminName('');
+      setModalAdminNameError('');
       
     } catch (error) {
       setPasswordError('비밀번호 확인 중 오류가 발생했습니다.');
@@ -129,6 +133,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
     setPendingAction(null);
     setPasswordInput('');
     setPasswordError('');
+    setModalAdminName('');
+    setModalAdminNameError('');
   };
 
   const formatDate = (date: Date) => {
@@ -257,32 +263,6 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         {/* 기존 강의룸 관리 탭 */}
         {activeTab === 'manage' && (
           <div>
-            <div className="mb-4">
-              <label htmlFor="manageAdminName" className="block text-sm font-medium text-gray-700 mb-2">
-                강의자 이름 <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="manageAdminName"
-                value={adminName}
-                onChange={(e) => {
-                  setAdminName(e.target.value);
-                  if (error && e.target.value.trim()) {
-                    setError(''); // 이름을 입력하면 오류 메시지 제거
-                  }
-                }}
-                className="w-full px-4 py-3 modern-input"
-                placeholder="강의룸 입장 시 사용할 이름"
-                maxLength={20}
-              />
-              <p className="text-xs text-gray-500 mt-1">강의룸 입장 시 표시될 이름입니다.</p>
-            </div>
-            
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
             
             {roomsLoading ? (
               <div className="text-center py-8">
@@ -364,9 +344,32 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               
               <form onSubmit={(e) => { e.preventDefault(); handlePasswordConfirm(); }}>
                 <div className="space-y-4">
+                  {pendingAction?.type === 'enter' && (
+                    <div>
+                      <label htmlFor="modalAdminNameInput" className="block text-sm font-medium text-gray-700 mb-2">
+                        강의자 이름 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="modalAdminNameInput"
+                        value={modalAdminName}
+                        onChange={(e) => {
+                          setModalAdminName(e.target.value);
+                          setModalAdminNameError('');
+                        }}
+                        className="w-full px-4 py-3 modern-input"
+                        placeholder="채팅에서 표시될 이름"
+                        maxLength={20}
+                      />
+                      {modalAdminNameError && (
+                        <p className="text-sm text-red-600 mt-1">{modalAdminNameError}</p>
+                      )}
+                    </div>
+                  )}
+                  
                   <div>
                     <label htmlFor="passwordInput" className="block text-sm font-medium text-gray-700 mb-2">
-                      관리자 비밀번호
+                      관리자 비밀번호 <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="password"
