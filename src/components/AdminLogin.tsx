@@ -129,7 +129,13 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   };
 
   const handleModalClose = () => {
-    setModal({ ...modal, isOpen: false });
+    setModal({ 
+      isOpen: false, 
+      type: 'confirm',
+      title: '',
+      message: '',
+      onConfirm: undefined 
+    });
     setPendingAction(null);
     setPasswordInput('');
     setPasswordError('');
