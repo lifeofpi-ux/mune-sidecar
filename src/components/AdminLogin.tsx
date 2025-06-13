@@ -310,7 +310,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             )}
           </div>
           <p className="text-gray-600">
-            {isSuperAdmin ? '슈퍼 관리자 모드' : '강의 룸 관리'}
+            {isSuperAdmin ? '슈퍼 관리자 모드' : '채널 관리'}
           </p>
         </div>
 
