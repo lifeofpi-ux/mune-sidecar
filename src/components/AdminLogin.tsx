@@ -227,6 +227,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               className="w-full px-4 py-3 modern-input"
               placeholder="관리자 비밀번호를 입력하세요"
               disabled={loading}
+              autocomplete="current-password"
             />
           </div>
 
@@ -343,48 +344,52 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">{modal.title}</h3>
               <p className="text-gray-600 mb-4">{modal.message}</p>
               
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="passwordInput" className="block text-sm font-medium text-gray-700 mb-2">
-                    관리자 비밀번호
-                  </label>
-                  <input
-                    type="password"
-                    id="passwordInput"
-                    value={passwordInput}
-                    onChange={(e) => {
-                      setPasswordInput(e.target.value);
-                      setPasswordError('');
-                    }}
-                    className="w-full px-4 py-3 modern-input"
-                    placeholder="비밀번호를 입력하세요"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        handlePasswordConfirm();
-                      }
-                    }}
-                  />
-                  {passwordError && (
-                    <p className="text-sm text-red-600 mt-1">{passwordError}</p>
-                  )}
-                </div>
+              <form onSubmit={(e) => { e.preventDefault(); handlePasswordConfirm(); }}>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="passwordInput" className="block text-sm font-medium text-gray-700 mb-2">
+                      관리자 비밀번호
+                    </label>
+                    <input
+                      type="password"
+                      id="passwordInput"
+                      value={passwordInput}
+                      onChange={(e) => {
+                        setPasswordInput(e.target.value);
+                        setPasswordError('');
+                      }}
+                      className="w-full px-4 py-3 modern-input"
+                      placeholder="비밀번호를 입력하세요"
+                      autocomplete="current-password"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handlePasswordConfirm();
+                        }
+                      }}
+                    />
+                    {passwordError && (
+                      <p className="text-sm text-red-600 mt-1">{passwordError}</p>
+                    )}
+                  </div>
                 
-                <div className="flex space-x-3">
-                  <button
-                    onClick={handleModalClose}
-                    className="flex-1 modern-btn modern-btn-secondary p-2"
-                  >
-                    취소
-                  </button>
-                  <button
-                    onClick={handlePasswordConfirm}
-                    className="flex-1 modern-btn modern-btn-primary p-2"  
-                    disabled={!passwordInput.trim()}
-                  >
-                    확인
-                  </button>
+                  <div className="flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={handleModalClose}
+                      className="flex-1 modern-btn modern-btn-secondary p-2"
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 modern-btn modern-btn-primary p-2"  
+                      disabled={!passwordInput.trim()}
+                    >
+                      확인
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

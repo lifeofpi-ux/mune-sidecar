@@ -27,8 +27,10 @@ const PollCard: React.FC<PollCardProps> = ({
     // 타입 안전성을 위한 체크
     const pollType = poll.type || 'multiple-choice';
     return pollType === 'multiple-choice' 
-      ? poll.options?.some(option => option.voters?.includes(currentUserId)) || false
-      : poll.wordCloudResponses?.some(response => response.includes(`[${currentUserId}]`)) || false;
+      ? poll.options?.some(option => Array.isArray(option.voters) && option.voters.includes(currentUserId)) || false
+      : Array.isArray(poll.wordCloudResponses) && poll.wordCloudResponses.some(response => 
+          typeof response === 'string' && response.includes(`[${currentUserId}]`)
+        ) || false;
   });
   const [wordCloudInput, setWordCloudInput] = useState('');
 
@@ -44,16 +46,16 @@ const PollCard: React.FC<PollCardProps> = ({
   const totalVotes = isMultipleChoice() 
     ? poll.options?.reduce((sum, option) => sum + (option.votes || 0), 0) || 0
     : poll.wordCloudResponses?.length || 0;
-  const userVotedOption = poll.options?.find(option => option.voters?.includes(currentUserId));
+  const userVotedOption = poll.options?.find(option => Array.isArray(option.voters) && option.voters.includes(currentUserId));
 
   // 실시간 투표 상태 업데이트
   useEffect(() => {
     if (isMultipleChoice()) {
-      const hasUserVoted = poll.options?.some(option => option.voters?.includes(currentUserId)) || false;
+      const hasUserVoted = poll.options?.some(option => Array.isArray(option.voters) && option.voters.includes(currentUserId)) || false;
       setHasVoted(hasUserVoted);
     } else if (isWordCloud()) {
-      const hasUserResponded = poll.wordCloudResponses?.some(response => 
-        response.includes(`[${currentUserId}]`)
+      const hasUserResponded = Array.isArray(poll.wordCloudResponses) && poll.wordCloudResponses.some(response => 
+        typeof response === 'string' && response.includes(`[${currentUserId}]`)
       ) || false;
       setHasVoted(hasUserResponded);
     }

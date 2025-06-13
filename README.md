@@ -1,33 +1,51 @@
-# Sidecar - 실시간 강의 채팅 및 설문조사 플랫폼
+# MUNE (무네) - 강의 및 프레젠테이션용 실시간 채팅 사이드카
 
-실시간 채팅과 설문조사 기능을 제공하는 강의용 웹 애플리케이션입니다.
+![MUNE Logo](./extension/icons/icon128.png)
 
-## 주요 기능
+MUNE는 강의나 프레젠테이션 중 실시간으로 청중과 소통할 수 있는 Chrome 확장 프로그램입니다. 강의자는 쉽게 채팅방을 생성하고 관리할 수 있으며, 참여자들은 간단한 링크로 채팅에 참여할 수 있습니다.
 
-- 🎯 **실시간 채팅**: 강의자와 참여자 간 실시간 소통
-- 📊 **객관식 설문조사**: 실시간 투표 및 결과 시각화
-- ☁️ **워드클라우드**: 자유 응답을 워드클라우드로 시각화
-- 📱 **QR 코드**: 간편한 참여자 입장
-- 👨‍🏫 **관리자 기능**: 설문조사 생성 및 관리
-- 📱 **반응형 디자인**: 모바일 및 데스크톱 지원
+## 🚀 주요 기능
 
-## 기술 스택
+### 👨‍🏫 강의자용 기능
+- **강의룸 생성 및 관리**: 간편한 강의룸 생성과 비밀번호 보호
+- **실시간 채팅 모니터링**: 참여자들의 질문과 의견을 실시간으로 확인
+- **설문조사 기능**: 객관식 투표 및 워드클라우드 생성
+- **랜덤 추첨**: 참여자 중 랜덤으로 선정하는 기능
+- **QR 코드 생성**: 참여 링크를 QR 코드로 공유
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS
-- **Backend**: Firebase Firestore (실시간 데이터베이스)
-- **Build Tool**: Vite
-- **Deployment**: Vercel
-- **Libraries**: 
-  - React Router (라우팅)
-  - Heroicons (아이콘)
-  - React WordCloud (워드클라우드)
-  - React QR Code (QR 코드 생성)
+### 👥 참여자용 기능
+- **간편 참여**: QR 코드나 링크로 쉽게 채팅방 입장
+- **실시간 채팅**: 강의 중 질문이나 의견 실시간 전송
+- **설문 참여**: 객관식 투표 및 워드클라우드 응답
+- **닉네임 중복 방지**: 같은 방 내에서 중복 닉네임 자동 차단
 
-## 설치 및 실행
+## 🛠️ 기술 스택
 
-### 1. 저장소 클론
+### Frontend
+- **React 18** - 사용자 인터페이스
+- **TypeScript** - 타입 안전성
+- **Tailwind CSS** - 스타일링
+- **Vite** - 빌드 도구
+
+### Backend & Database
+- **Firebase Firestore** - 실시간 데이터베이스
+- **Firebase Authentication** - 사용자 인증
+
+### Chrome Extension
+- **Manifest V3** - 최신 Chrome 확장 프로그램 표준
+- **Side Panel API** - Chrome 사이드 패널 기능
+
+### Additional Libraries
+- **@heroicons/react** - 아이콘
+- **@visx/wordcloud** - 워드클라우드 시각화
+- **qrcode** - QR 코드 생성
+- **react-router-dom** - 라우팅
+
+## 📦 설치 및 실행
+
+### 1. 프로젝트 클론
 ```bash
-git clone <repository-url>
+git clone https://github.com/[your-username]/sidecar.git
 cd sidecar
 ```
 
@@ -36,103 +54,104 @@ cd sidecar
 npm install
 ```
 
-### 3. 환경 변수 설정
-`.env.example` 파일을 참고하여 `.env` 파일을 생성하고 Firebase 설정을 입력하세요:
-
-```bash
-cp .env.example .env
-```
-
-`.env` 파일에 다음 값들을 설정하세요:
-```env
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
-
-### 4. 개발 서버 실행
+### 3. 개발 서버 실행
 ```bash
 npm run dev
 ```
 
-### 5. 프로덕션 빌드
+### 4. 프로덕션 빌드
 ```bash
 npm run build
 ```
 
-## Firebase 설정
+## 🔧 Chrome 확장 프로그램 설치
 
-1. [Firebase Console](https://console.firebase.google.com/)에서 새 프로젝트 생성
-2. Firestore Database 활성화
-3. 웹 앱 추가 및 설정 정보 복사
-4. `.env` 파일에 설정 정보 입력
+### 개발자 모드로 설치
+1. Chrome 브라우저에서 `chrome://extensions/` 접속
+2. 우상단의 "개발자 모드" 토글 활성화
+3. "압축해제된 확장 프로그램을 로드합니다" 클릭
+4. 프로젝트의 `extension` 폴더 선택
 
-### Firestore 보안 규칙
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}
-```
+### 확장 프로그램 사용
+1. Chrome 툴바에서 MUNE 확장 프로그램 아이콘 클릭
+2. 사이드 패널이 열리면서 강의룸 관리 화면 표시
+3. 강의룸 생성 후 QR 코드로 참여자들과 공유
 
-## 배포
+## 📱 사용 방법
 
-### Vercel 배포
-1. Vercel 계정 생성 및 GitHub 연동
-2. 프로젝트 import
-3. 환경 변수 설정 (Vercel 대시보드에서)
-4. 자동 배포 완료
+### 강의자
+1. **강의룸 생성**
+   - 강의룸 이름 입력
+   - 강의자 이름 입력
+   - 관리자 비밀번호 설정
 
-### 환경 변수 설정 (Vercel)
-Vercel 대시보드 → Settings → Environment Variables에서 다음 변수들을 추가:
-- `VITE_FIREBASE_API_KEY`
-- `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_STORAGE_BUCKET`
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`
-- `VITE_FIREBASE_APP_ID`
+2. **참여자 초대**
+   - 생성된 QR 코드를 화면에 표시
+   - 또는 참여 링크를 공유
 
-## 사용 방법
-
-### 강의자 (관리자)
-1. 메인 페이지에서 "강의자 로그인" 선택
-2. 강의룸 생성 또는 기존 강의룸 관리
-3. QR 코드를 통해 참여자 초대
-4. 실시간으로 설문조사 생성 및 관리
+3. **실시간 소통**
+   - 참여자들의 채팅 실시간 모니터링
+   - 설문조사 생성 및 결과 확인
+   - 랜덤 추첨으로 참여자 선정
 
 ### 참여자
-1. QR 코드 스캔 또는 링크 접속
-2. 이름 입력 후 강의룸 입장
-3. 실시간 채팅 참여
-4. 설문조사 및 워드클라우드 응답
+1. **채팅방 입장**
+   - QR 코드 스캔 또는 링크 클릭
+   - 닉네임 입력 후 입장
 
-## 프로젝트 구조
+2. **채팅 참여**
+   - 질문이나 의견을 실시간으로 전송
+   - 설문조사 참여
+   - 워드클라우드 응답 작성
 
-```
-src/
-├── components/          # React 컴포넌트
-│   ├── AdminLogin.tsx   # 관리자 로그인
-│   ├── ChatRoom.tsx     # 채팅룸 메인
-│   ├── PollCard.tsx     # 설문조사 카드
-│   ├── PollModal.tsx    # 설문조사 생성 모달
-│   ├── QRCodeGenerator.tsx # QR 코드 생성
-│   ├── UserLogin.tsx    # 사용자 로그인
-│   └── WordCloud.tsx    # 워드클라우드
-├── hooks/               # Custom Hooks
-│   └── useChat.ts       # 채팅 관련 로직
-├── types/               # TypeScript 타입 정의
-│   └── index.ts
-├── firebase.ts          # Firebase 설정
-└── App.tsx             # 메인 앱 컴포넌트
-```
+## 🔥 주요 특징
 
-## 라이선스
+- **실시간 동기화**: Firebase를 통한 실시간 데이터 동기화
+- **반응형 디자인**: 모바일과 데스크톱 모두 지원
+- **사용자 친화적 UI**: 직관적이고 현대적인 인터페이스
+- **안전한 관리**: 비밀번호 기반 강의룸 관리
+- **확장성**: 대규모 참여자도 안정적으로 지원
 
-ISC License 
+## 🌐 배포
+
+### 웹 애플리케이션
+- **배포 URL**: `https://sidecar-nine.store`
+- **호스팅**: Vercel/Netlify 등
+
+### Chrome 웹 스토어
+- Chrome 웹 스토어에서 "MUNE" 검색
+- 또는 직접 설치 파일 다운로드
+
+## 🤝 기여하기
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
+
+## 👨‍💻 개발자
+
+**@라이프오브파이** - 전체 개발 및 디자인
+
+## 📞 지원 및 문의
+
+- 이슈 및 버그 리포트: [GitHub Issues](https://github.com/[your-username]/sidecar/issues)
+- 기능 요청: [GitHub Discussions](https://github.com/[your-username]/sidecar/discussions)
+
+## 🎯 향후 계획
+
+- [ ] 모바일 앱 버전 개발
+- [ ] 다국어 지원
+- [ ] 고급 분석 기능
+- [ ] 녹화 및 재생 기능
+- [ ] API 개방
+- [ ] 플러그인 시스템
+
+---
+
+**MUNE**로 더 interactive한 강의와 프레젠테이션을 만들어보세요! 🚀 

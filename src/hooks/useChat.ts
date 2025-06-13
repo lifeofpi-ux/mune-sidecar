@@ -222,7 +222,7 @@ export const useChat = (roomId: string | null, user: User | null) => {
       const poll = currentMessage.poll;
       
       // 이미 투표했는지 확인
-      const hasVoted = poll.options.some((option: any) => option.voters.includes(userId));
+      const hasVoted = poll.options.some((option: any) => Array.isArray(option.voters) && option.voters.includes(userId));
       if (hasVoted) return;
 
       // 투표 업데이트
