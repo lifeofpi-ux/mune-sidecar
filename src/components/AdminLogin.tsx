@@ -43,11 +43,31 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   const [superAdminError, setSuperAdminError] = useState('');
   const [showSuperAdminModal, setShowSuperAdminModal] = useState(false);
 
+  // 초기 관리자 인증 관련 상태
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authPassword, setAuthPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+
   const { createRoom, verifyAdminPassword } = useChatRoom();
   const { rooms, loading: roomsLoading, deleteRoom } = useRoomList();
   
   // 슈퍼 관리자 비밀번호 (실제 환경에서는 환경변수나 보안 저장소 사용 권장)
   const SUPER_ADMIN_PASSWORD = 'mune2025super';
+  
+  // 초기 관리자 인증 비밀번호
+  const ADMIN_AUTH_PASSWORD = 'tripod25!';
+
+  // 초기 관리자 인증 처리
+  const handleAdminAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (authPassword === ADMIN_AUTH_PASSWORD) {
+      setIsAuthenticated(true);
+      setAuthPassword('');
+      setAuthError('');
+    } else {
+      setAuthError('비밀번호가 올바르지 않습니다.');
+    }
+  };
 
   // 슈퍼 관리자 로그인 처리
   const handleSuperAdminLogin = () => {
@@ -275,6 +295,68 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       setLoading(false);
     }
   };
+
+  // 인증되지 않은 경우 비밀번호 입력 화면 표시
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+        <div className="modern-card p-8 w-full max-w-md">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <img 
+                src="/logo.webp" 
+                alt="MUNE Logo" 
+                className="w-10 h-10 object-contain"
+              />
+              <h1 className="text-3xl font-bold text-gray-900">MUNE</h1>
+            </div>
+            <p className="text-gray-600">관리자 인증</p>
+          </div>
+
+          <form onSubmit={handleAdminAuth} className="space-y-6">
+            <div>
+              <label htmlFor="authPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                뮨 인증 키워드
+              </label>
+              <input
+                type="password"
+                id="authPassword"
+                value={authPassword}
+                onChange={(e) => {
+                  setAuthPassword(e.target.value);
+                  setAuthError('');
+                }}
+                className="w-full px-4 py-2 modern-input"
+                placeholder="키워드를 입력하세요"
+                autoComplete="current-password"
+              />
+            </div>
+
+            {authError && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                <p className="text-sm text-red-600">{authError}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full modern-btn modern-btn-primary py-2"
+              disabled={!authPassword.trim()}
+            >
+              로그인
+            </button>
+          </form>
+        </div>
+        
+        {/* 크레딧 */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+          <p className="text-sm text-gray-500 text-center">
+            제작 <span className="font-medium text-gray-600">@라이프오브파이</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4 relative">
