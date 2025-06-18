@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useChatRoom, useRoomList } from '../hooks/useChat';
 import Modal from './Modal';
 
@@ -57,10 +57,18 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   // 초기 관리자 인증 비밀번호
   const ADMIN_AUTH_PASSWORD = 'tripod25!';
 
+  useEffect(() => {
+    const isAdminAuthenticated = localStorage.getItem('isAdminAuthenticated');
+    if (isAdminAuthenticated === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   // 초기 관리자 인증 처리
   const handleAdminAuth = (e: React.FormEvent) => {
     e.preventDefault();
     if (authPassword === ADMIN_AUTH_PASSWORD) {
+      localStorage.setItem('isAdminAuthenticated', 'true');
       setIsAuthenticated(true);
       setAuthPassword('');
       setAuthError('');

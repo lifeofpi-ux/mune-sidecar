@@ -8,7 +8,7 @@ interface QRCodeGeneratorProps {
 }
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ roomId, roomName }) => {
-  const chatUrl = `https://sidecar-nine.store/join?room=${roomId}`;
+  const chatUrl = `${window.location.origin}/join?room=${roomId}`;
   const [modal, setModal] = useState<{
     isOpen: boolean;
     title: string;
