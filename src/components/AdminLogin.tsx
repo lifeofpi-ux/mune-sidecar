@@ -386,11 +386,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
 
       <div className="p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="flex items-center justify-center gap-0.5 mb-2">
             <img 
               src="/logo.webp" 
               alt="MUNE Logo" 
-              className="w-10 h-10 object-contain"
+              className="w-12 h-12 object-contain"
             />
             <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
             {isSuperAdmin && (
