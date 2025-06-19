@@ -308,22 +308,22 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
-        <div className="modern-card p-8 w-full max-w-md">
+        <div className="p-8 w-full max-w-md">
           <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="flex items-center justify-center gap-0.5 mb-2">
               <img 
                 src="/logo.webp" 
                 alt="MUNE Logo" 
-                className="w-10 h-10 object-contain"
+                className="w-12 h-12 object-contain"
               />
-              <h1 className="text-3xl font-bold text-gray-900">MUNE</h1>
+              <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
             </div>
-            <p className="text-gray-600">관리자 인증</p>
+            <p className="text-blue-700 font-medium">관리자 인증</p>
           </div>
 
           <form onSubmit={handleAdminAuth} className="space-y-6">
             <div>
-              <label htmlFor="authPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="authPassword" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
                 뮨 인증 키워드
               </label>
               <input
@@ -334,21 +334,21 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                   setAuthPassword(e.target.value);
                   setAuthError('');
                 }}
-                className="w-full px-4 py-2 modern-input"
+                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
                 placeholder="키워드를 입력하세요"
                 autoComplete="current-password"
               />
             </div>
 
             {authError && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <p className="text-sm text-red-600">{authError}</p>
+              <div className="bg-red-100/80 backdrop-blur-sm border border-red-300/50 rounded-md p-3">
+                <p className="text-sm text-red-700 font-medium">{authError}</p>
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full modern-btn modern-btn-primary py-2"
+              className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               disabled={!authPassword.trim()}
             >
               로그인
@@ -358,8 +358,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         
         {/* 크레딧 */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-          <p className="text-sm text-gray-500 text-center">
-            제작 <span className="font-medium text-gray-600">@라이프오브파이</span>
+          <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
+            제작 <span className="font-medium text-blue-700">@라이프오브파이</span>
           </p>
         </div>
       </div>
@@ -373,8 +373,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         onClick={handleSettingsClick}
         className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
           isSuperAdmin 
-            ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg' 
-            : 'bg-white hover:bg-gray-50 text-gray-600 shadow-md'
+            ? 'bg-red-500/90 hover:bg-red-600 text-white shadow-lg backdrop-blur-sm' 
+            : 'bg-white/80 hover:bg-white/90 text-blue-700 shadow-md backdrop-blur-sm border border-blue-200/50'
         }`}
         title={isSuperAdmin ? '슈퍼 관리자 로그아웃' : '슈퍼 관리자 로그인'}
       >
@@ -384,7 +384,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         </svg>
       </button>
 
-      <div className="modern-card p-8 w-full max-w-md">
+      <div className="p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-2">
             <img 
@@ -392,14 +392,14 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               alt="MUNE Logo" 
               className="w-10 h-10 object-contain"
             />
-            <h1 className="text-3xl font-bold text-gray-900">MUNE</h1>
+            <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
             {isSuperAdmin && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+              <span className="bg-red-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
                 SUPER
               </span>
             )}
           </div>
-          <p className="text-gray-600">
+          <p className="text-blue-700 font-medium">
             {isSuperAdmin ? '슈퍼 관리자 모드' : '채널 관리'}
           </p>
         </div>
@@ -426,7 +426,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         {activeTab === 'create' && (
           <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="roomName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
               강의룸 이름
             </label>
             <input
@@ -434,14 +434,14 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               id="roomName"
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
-              className="w-full px-4 py-2 modern-input"
+              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
               placeholder="예: 2025 트라이팟 컨퍼런스"
               disabled={loading}
             />
           </div>
 
           <div>
-            <label htmlFor="adminName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="adminName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
               강의자 이름
             </label>
             <input
@@ -449,7 +449,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               id="adminName"
               value={adminName}
               onChange={(e) => setAdminName(e.target.value)}
-              className="w-full px-4 py-2 modern-input"
+              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
               placeholder="예: 김강의"
               disabled={loading}
               maxLength={20}
@@ -457,7 +457,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           </div>
 
           <div>
-            <label htmlFor="adminPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="adminPassword" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
               관리자 비밀번호
             </label>
             <input
@@ -465,7 +465,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               id="adminPassword"
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
-              className="w-full px-4 py-2 modern-input"
+              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
               placeholder="관리자 비밀번호를 입력하세요"
               disabled={loading}
               autoComplete="current-password"
@@ -473,15 +473,15 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="bg-red-100/80 backdrop-blur-sm border border-red-300/50 rounded-md p-3">
+              <p className="text-sm text-red-700 font-medium">{error}</p>
             </div>
           )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full modern-btn modern-btn-primary py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? '생성 중...' : '강의룸 생성'}
             </button>
@@ -494,34 +494,34 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             
             {roomsLoading ? (
               <div className="text-center py-8">
-                <div className="text-gray-500">로딩 중...</div>
+                <div className="text-blue-700 font-medium">로딩 중...</div>
               </div>
             ) : rooms.length === 0 ? (
               <div className="text-center py-8">
-                <div className="text-gray-500 mb-2">생성된 강의룸이 없습니다</div>
-                <p className="text-sm text-gray-400">먼저 강의룸을 생성해보세요</p>
+                <div className="text-blue-700 font-medium mb-2">생성된 강의룸이 없습니다</div>
+                <p className="text-sm text-blue-600">먼저 강의룸을 생성해보세요</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-80 overflow-y-auto">
                 {rooms.map((room) => (
                   <div 
                     key={room.id} 
-                    className="bg-gray-50 rounded-lg p-3 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                    className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-200/50 cursor-pointer hover:bg-white/80 hover:border-blue-300/70 transition-all duration-200 shadow-sm hover:shadow-md"
                     onClick={() => handleRoomClick(room.id, room.name)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                        <h3 className="text-sm font-medium text-blue-900 truncate">
                           {room.name}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-blue-600 mt-1">
                           {formatDate(room.createdAt)}
                         </p>
                         <div className="flex items-center mt-1">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                             room.isActive 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-green-100/80 text-green-800 border border-green-200/50' 
+                              : 'bg-gray-100/80 text-gray-700 border border-gray-200/50'
                           }`}>
                             {room.isActive ? '활성' : '비활성'}
                           </span>
@@ -529,7 +529,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                       </div>
                       <button
                         onClick={(e) => handleDeleteRoom(room.id, room.name, e)}
-                        className="ml-3 modern-btn modern-btn-warning modern-btn-sm"
+                        className="ml-3 modern-btn modern-btn-warning modern-btn-sm bg-red-500/80 hover:bg-red-600 text-white shadow-sm hover:shadow-md transition-all duration-200"
                         title="강의룸 삭제"
                       >
                         삭제
@@ -545,8 +545,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-        <p className="text-sm text-gray-500 text-center">
-          제작 <span className="font-medium text-gray-600">@라이프오브파이</span>
+        <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
+          제작 <span className="font-medium text-blue-700">@라이프오브파이</span>
         </p>
       </div>
       
