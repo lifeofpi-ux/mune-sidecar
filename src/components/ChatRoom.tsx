@@ -222,7 +222,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                 <div key={msg.id}>
                   <div className="flex justify-center">
                     <div className="bg-green-50 border border-green-200 px-3 py-2 rounded-full max-w-md">
-                      <p className="text-sm text-green-700 text-center">
+                      <p className="text-sm text-green-700 text-center break-words">
                         {msg.message}
                       </p>
                       <p className="text-xs text-green-500 text-center mt-1">
@@ -294,7 +294,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                         </span>
                       </div>
                       <p
-                        className={`text-sm ${
+                        className={`text-sm break-words ${
                           msg.userName === user.name
                             ? 'text-white'
                             : msg.isAdmin
