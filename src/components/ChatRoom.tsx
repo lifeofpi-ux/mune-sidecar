@@ -62,6 +62,21 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
     setMessage('');
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      if (e.ctrlKey) {
+        // Ctrl+Enter: 줄바꿈 (기본 동작 허용)
+        return;
+      } else {
+        // Enter: 메시지 전송
+        e.preventDefault();
+        if (message.trim()) {
+          handleSendMessage(e as any);
+        }
+      }
+    }
+  };
+
   const handleCreatePoll = async (pollData: Omit<Poll, 'id' | 'createdAt'>) => {
     try {
       console.log('Creating new poll:', pollData);
@@ -330,23 +345,24 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
       {/* Message Input */}
       <div className="bg-white border-t p-4">
         <form onSubmit={handleSendMessage} className="flex space-x-2">
-          <input
-            type="text"
+          <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="메시지를 입력하세요..."
-            className="flex-1 px-4 py-2 modern-input"
+            onKeyDown={handleKeyDown}
+            placeholder="메시지를 입력하세요... (Enter: 전송, Ctrl+Enter: 줄바꿈)"
+            className="flex-1 px-4 py-2 modern-input resize-none min-h-[2.5rem] max-h-32 overflow-y-auto"
             maxLength={500}
+            rows={1}
           />
           <button
             type="submit"
             disabled={!message.trim()}
-            className="modern-btn modern-btn-primary px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="modern-btn modern-btn-primary px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed self-end"
           >
             전송
           </button>
         </form>
-        <p className="text-xs text-gray-500 mt-1">최대 500자까지 입력 가능합니다.</p>
+        <p className="text-xs text-gray-500 mt-1">최대 500자까지 입력 가능합니다. Enter: 전송, Ctrl+Enter: 줄바꿈</p>
       </div>
 
       {/* 설문조사 생성 모달 */}
