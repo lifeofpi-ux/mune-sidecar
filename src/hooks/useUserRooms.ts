@@ -71,6 +71,11 @@ export const useUserRooms = () => {
       throw new Error('로그인이 필요합니다.');
     }
 
+    // 채팅룸 개수 제한 확인 (최대 3개)
+    if (rooms.length >= 3) {
+      throw new Error('최대 3개의 채팅룸만 생성할 수 있습니다.');
+    }
+
     try {
       const roomData = {
         name,

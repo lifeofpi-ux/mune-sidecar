@@ -25,14 +25,21 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
 
       try {
         const room = await getRoomById(roomId);
-        if (!room || !room.isActive) {
+        
+        if (!room) {
           setError('존재하지 않거나 비활성화된 강의룸입니다.');
           return;
         }
+        
+        if (!room.isActive) {
+          setError('존재하지 않거나 비활성화된 강의룸입니다.');
+          return;
+        }
+        
         setRoomInfo({ id: room.id, name: room.name });
       } catch (error) {
-        setError('강의룸 정보를 불러오는데 실패했습니다.');
         console.error('Error loading room info:', error);
+        setError('강의룸 정보를 불러오는데 실패했습니다.');
       }
     };
 

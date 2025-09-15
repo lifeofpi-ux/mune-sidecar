@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   collection, 
   addDoc, 
@@ -396,28 +396,50 @@ export const useChatRoom = () => {
     }
   };
 
-  const getRoomById = async (roomId: string): Promise<ChatRoom | null> => {
+  const getRoomById = useCallback(async (roomId: string): Promise<ChatRoom | null> => {
     try {
-      const roomsRef = collection(db, 'chatRooms');
-      const q = query(roomsRef, where('__name__', '==', roomId));
-      const snapshot = await getDocs(q);
+      // 먼저 새로운 rooms 컬렉션에서 찾기
+      const newRoomRef = doc(db, 'rooms', roomId);
+      const newRoomDoc = await getDoc(newRoomRef);
       
-      if (snapshot.empty) return null;
+      if (newRoomDoc.exists()) {
+        const data = newRoomDoc.data();
+        
+        return {
+          id: newRoomDoc.id,
+          name: data.name,
+          adminPassword: data.adminPassword,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          isActive: data.isActive,
+          ownerId: data.ownerId,
+          ownerEmail: data.ownerEmail,
+          ownerDisplayName: data.ownerDisplayName,
+          adminName: data.adminName
+        };
+      }
       
-      const doc = snapshot.docs[0];
-      const data = doc.data();
-      return {
-        id: doc.id,
-        name: data.name,
-        adminPassword: data.adminPassword,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        isActive: data.isActive
-      };
-    } catch (error) {
+      // 새로운 컬렉션에서 찾지 못한 경우 레거시 컬렉션에서 찾기
+      const legacyRoomRef = doc(db, 'chatRooms', roomId);
+      const legacyRoomDoc = await getDoc(legacyRoomRef);
+      
+      if (legacyRoomDoc.exists()) {
+        const data = legacyRoomDoc.data();
+        
+        return {
+          id: legacyRoomDoc.id,
+          name: data.name,
+          adminPassword: data.adminPassword,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          isActive: data.isActive
+        };
+      }
+      
+      return null;
+    } catch (error: any) {
       console.error('Error getting room:', error);
       return null;
     }
-  };
+  }, []);
 
   const verifyAdminPassword = async (roomId: string, password: string): Promise<boolean> => {
     const room = await getRoomById(roomId);

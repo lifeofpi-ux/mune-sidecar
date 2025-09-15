@@ -51,6 +51,12 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
       return;
     }
 
+    // 채팅룸 개수 제한 확인 (최대 3개)
+    if (rooms.length >= 3) {
+      setError('최대 3개의 채팅룸만 생성할 수 있습니다.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -203,7 +209,37 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
 
         {/* 채팅룸 생성 탭 */}
         {activeTab === 'create' && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
+            {/* 채팅룸 개수 정보 */}
+            <div className="bg-blue-50/80 backdrop-blur-sm rounded-lg p-4 border border-blue-200/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-medium text-blue-900">채팅룸 생성 현황</h4>
+                  <p className="text-xs text-blue-700 mt-1">
+                    현재 <span className="font-semibold">{rooms.length}</span>개 / 최대 <span className="font-semibold">3</span>개
+                  </p>
+                </div>
+                <div className="flex space-x-1">
+                  {Array.from({ length: 3 }, (_, i) => (
+                    <div
+                      key={i}
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        i < rooms.length ? 'bg-blue-500' : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              {rooms.length >= 3 && (
+                <div className="mt-3 p-2 bg-yellow-100 rounded-md">
+                  <p className="text-xs text-yellow-800">
+                    ⚠️ 최대 개수에 도달했습니다. 새 채팅룸을 만들려면 기존 채팅룸을 삭제해주세요.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="roomName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
                 채팅룸 이름
@@ -259,12 +295,13 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || rooms.length >= 3}
               className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? '생성 중...' : '채팅룸 생성'}
+              {loading ? '생성 중...' : rooms.length >= 3 ? '최대 개수 도달' : '채팅룸 생성'}
             </button>
           </form>
+          </div>
         )}
 
         {/* 내 채팅룸 관리 탭 */}

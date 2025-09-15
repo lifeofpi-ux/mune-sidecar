@@ -2,8 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   UserPlusIcon, 
-  ArrowRightOnRectangleIcon,
-  SparklesIcon
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 const WelcomeScreen: React.FC = () => {
@@ -45,25 +44,25 @@ const WelcomeScreen: React.FC = () => {
         {/* 메인 액션 카드 */}
         <div className="max-w-sm mx-auto bg-white/50 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/50 p-8 mb-8">
           <div className="space-y-4">
-            {/* 회원가입 버튼 */}
-            <button
-              onClick={() => navigate('/signup')}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
-            >
-              <div className="flex items-center justify-center space-x-3 text-sm">
-                <UserPlusIcon className="w-5 h-5" />
-                <span>새 계정 만들기</span>
-              </div>
-            </button>
-
             {/* 로그인 버튼 */}
             <button
               onClick={() => navigate('/signin')}
-              className="w-full bg-white/80 backdrop-blur-sm hover:bg-white text-blue-700 font-semibold py-3 px-6 rounded-2xl border-2 border-blue-200/50 hover:border-blue-300 shadow-md hover:shadow-lg transition-all duration-300"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
             >
               <div className="flex items-center justify-center space-x-3 text-sm">
                 <ArrowRightOnRectangleIcon className="w-5 h-5" />
                 <span>기존 계정으로 로그인</span>
+              </div>
+            </button>
+
+            {/* 회원가입 버튼 */}
+            <button
+              onClick={() => navigate('/signup')}
+              className="w-full bg-white/80 backdrop-blur-sm hover:bg-white text-blue-700 font-semibold py-3 px-6 rounded-2xl border-2 border-blue-200/50 hover:border-blue-300 shadow-md hover:shadow-lg transition-all duration-300"
+            >
+              <div className="flex items-center justify-center space-x-3 text-sm">
+                <UserPlusIcon className="w-5 h-5" />
+                <span>새 계정 만들기</span>
               </div>
             </button>
           </div>

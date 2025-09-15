@@ -200,7 +200,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
               </div>
 
               {/* 버튼들 */}
-              <div className="pt-4 border-t space-y-3">
+              <div className="pt-4 border-t">
                 <button
                   onClick={handleLogout}
                   disabled={loading}
@@ -210,14 +210,16 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
                   <span>{loading ? '로그아웃 중...' : '로그아웃'}</span>
                 </button>
                 
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  disabled={loading}
-                  className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <TrashIcon className="w-5 h-5" />
-                  <span>회원 탈퇴</span>
-                </button>
+                {/* 회원 탈퇴 텍스트 링크 */}
+                <div className="mt-3 text-left">
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={loading}
+                    className="text-sm text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed underline"
+                  >
+                    회원 탈퇴
+                  </button>
+                </div>
               </div>
             </div>
           </div>
