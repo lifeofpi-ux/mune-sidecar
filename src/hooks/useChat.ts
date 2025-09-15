@@ -30,9 +30,17 @@ export const useChat = (roomId: string | null, user: User | null) => {
     if (!roomId || !user || isPresenceSetup.current) return;
     
     try {
+      // 새로운 rooms 컬렉션에 있는지 먼저 확인
+      const newRoomRef = doc(db, 'rooms', roomId);
+      const newRoomDoc = await getDoc(newRoomRef);
+      const isNewRoom = newRoomDoc.exists();
+
+      // 적절한 컬렉션 선택
+      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
+      
       // 세션 ID를 문서 ID로 사용하고, 닉네임은 데이터로 저장
-      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), user.sessionId);
-      const roomRef = doc(db, 'chatRooms', roomId);
+      const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), user.sessionId);
+      const roomRef = doc(db, collectionName, roomId);
 
       // 이미 접속되어 있는지 확인
       const existingPresence = await getDoc(userPresenceRef);
@@ -51,9 +59,27 @@ export const useChat = (roomId: string | null, user: User | null) => {
       });
 
       // 채팅방의 접속자 수 증가
-      await updateDoc(roomRef, {
-        onlineCount: increment(1)
-      });
+      try {
+        await updateDoc(roomRef, {
+          onlineCount: increment(1)
+        });
+      } catch (error: any) {
+        // 문서가 존재하지 않거나 onlineCount 필드가 없는 경우 초기화
+        if (error?.code === 'not-found') {
+          console.log('Room document not found, skipping online count update');
+        } else {
+          // onlineCount 필드가 없는 경우 초기화 후 재시도
+          console.log('Initializing onlineCount field for room:', roomId);
+          try {
+            await updateDoc(roomRef, {
+              onlineCount: 1
+            });
+          } catch (retryError: any) {
+            console.error('Failed to initialize onlineCount:', retryError);
+            // 초기화도 실패하면 무시하고 계속 진행
+          }
+        }
+      }
 
       isPresenceSetup.current = true;
 
@@ -80,15 +106,29 @@ export const useChat = (roomId: string | null, user: User | null) => {
     if (!roomId || !user || !isPresenceSetup.current) return;
     
     try {
-      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), user.sessionId);
-      const roomRef = doc(db, 'chatRooms', roomId);
+      // 새로운 rooms 컬렉션에 있는지 먼저 확인
+      const newRoomRef = doc(db, 'rooms', roomId);
+      const newRoomDoc = await getDoc(newRoomRef);
+      const isNewRoom = newRoomDoc.exists();
+
+      // 적절한 컬렉션 선택
+      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
+      
+      const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), user.sessionId);
+      const roomRef = doc(db, collectionName, roomId);
       
       const existingPresence = await getDoc(userPresenceRef);
       if (existingPresence.exists()) {
         await deleteDoc(userPresenceRef);
-        await updateDoc(roomRef, {
-          onlineCount: increment(-1)
-        });
+        try {
+          await updateDoc(roomRef, {
+            onlineCount: increment(-1)
+          });
+        } catch (error: any) {
+          if (error?.code !== 'not-found') {
+            console.error('Error decrementing online count:', error);
+          }
+        }
       }
       
       isPresenceSetup.current = false;
@@ -104,63 +144,77 @@ export const useChat = (roomId: string | null, user: User | null) => {
       return;
     }
 
-    // 사용자 접속 상태 설정
-    setupUserPresence();
+    let unsubscribeMessages: (() => void) | undefined;
+    let unsubscribeOnlineUsers: (() => void) | undefined;
+    let unsubscribeOnlineUsersList: (() => void) | undefined;
 
-    // 메시지 구독
-    const messagesRef = collection(db, 'messages');
-    const q = query(
-      messagesRef,
-      where('roomId', '==', roomId),
-      orderBy('timestamp', 'asc')
-    );
+    const setupSubscriptions = async () => {
+      // 사용자 접속 상태 설정
+      setupUserPresence();
 
-    const unsubscribeMessages = onSnapshot(q, (snapshot) => {
-      const newMessages: ChatMessage[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        newMessages.push({
-          id: doc.id,
-          roomId: data.roomId,
-          userName: data.userName,
-          message: data.message,
-          timestamp: data.timestamp?.toDate() || new Date(),
-          isAdmin: data.isAdmin || false,
-          poll: data.poll ? {
-            id: data.poll.id,
-            question: data.poll.question,
-            options: data.poll.options || [],
-            createdAt: data.poll.createdAt?.toDate() || new Date(),
-            isActive: data.poll.isActive !== undefined ? data.poll.isActive : true,
-            type: data.poll.type || 'multiple-choice',
-            wordCloudResponses: data.poll.wordCloudResponses || []
-          } : undefined
+      // 새로운 rooms 컬렉션에 있는지 먼저 확인
+      const newRoomRef = doc(db, 'rooms', roomId);
+      const newRoomDoc = await getDoc(newRoomRef);
+      const isNewRoom = newRoomDoc.exists();
+
+      // 적절한 컬렉션 선택
+      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
+
+      // 메시지 구독 (메시지는 별도 컬렉션에 있으므로 그대로 유지)
+      const messagesRef = collection(db, 'messages');
+      const q = query(
+        messagesRef,
+        where('roomId', '==', roomId),
+        orderBy('timestamp', 'asc')
+      );
+
+      unsubscribeMessages = onSnapshot(q, (snapshot) => {
+        const newMessages: ChatMessage[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          newMessages.push({
+            id: doc.id,
+            roomId: data.roomId,
+            userName: data.userName,
+            message: data.message,
+            timestamp: data.timestamp?.toDate() || new Date(),
+            isAdmin: data.isAdmin || false,
+            poll: data.poll ? {
+              id: data.poll.id,
+              question: data.poll.question,
+              options: data.poll.options || [],
+              createdAt: data.poll.createdAt?.toDate() || new Date(),
+              isActive: data.poll.isActive !== undefined ? data.poll.isActive : true,
+              type: data.poll.type || 'multiple-choice',
+              wordCloudResponses: data.poll.wordCloudResponses || []
+            } : undefined
+          });
         });
+        setMessages(newMessages);
+        setLoading(false);
       });
-      setMessages(newMessages);
-      setLoading(false);
-    });
 
-    // 접속자 수 구독
-    const roomRef = doc(db, 'chatRooms', roomId);
-    const unsubscribeOnlineUsers = onSnapshot(roomRef, (doc) => {
-      if (doc.exists()) {
-        setOnlineUsers(doc.data().onlineCount || 0);
-      }
-    });
-
-    // 접속자 목록 구독
-    const onlineUsersRef = collection(db, 'chatRooms', roomId, 'onlineUsers');
-    const unsubscribeOnlineUsersList = onSnapshot(onlineUsersRef, (snapshot) => {
-      const usersList: string[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.nickname) {
-          usersList.push(data.nickname);
+      // 접속자 수 구독
+      const roomRef = doc(db, collectionName, roomId);
+      unsubscribeOnlineUsers = onSnapshot(roomRef, (doc) => {
+        if (doc.exists()) {
+          setOnlineUsers(doc.data().onlineCount || 0);
         }
       });
-      setOnlineUsersList(usersList);
-    });
+
+      // 접속자 목록 구독
+      const onlineUsersRef = collection(db, collectionName, roomId, 'onlineUsers');
+      unsubscribeOnlineUsersList = onSnapshot(onlineUsersRef, (snapshot) => {
+        const usersList: string[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.nickname) {
+            usersList.push(data.nickname);
+          }
+        });
+        setOnlineUsersList(usersList);
+      });
+    };
 
     // 네트워크 상태 모니터링
     const handleOnline = () => {
@@ -176,11 +230,13 @@ export const useChat = (roomId: string | null, user: User | null) => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    setupSubscriptions();
+
     return () => {
       cleanupUserPresence();
-      unsubscribeMessages();
-      unsubscribeOnlineUsers();
-      unsubscribeOnlineUsersList();
+      if (unsubscribeMessages) unsubscribeMessages();
+      if (unsubscribeOnlineUsers) unsubscribeOnlineUsers();
+      if (unsubscribeOnlineUsersList) unsubscribeOnlineUsersList();
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
@@ -448,9 +504,23 @@ export const useChatRoom = () => {
 
   const incrementOnlineUsers = async (roomId: string, userName: string, sessionId?: string) => {
     try {
+      // 먼저 어느 컬렉션에 룸이 있는지 확인
+      const room = await getRoomById(roomId);
+      if (!room) {
+        throw new Error('Room not found');
+      }
+
+      // 새로운 rooms 컬렉션에 있는지 확인
+      const newRoomRef = doc(db, 'rooms', roomId);
+      const newRoomDoc = await getDoc(newRoomRef);
+      const isNewRoom = newRoomDoc.exists();
+
+      // 적절한 컬렉션 선택
+      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
+      
       // 세션 ID가 제공된 경우 새로운 방식 사용, 아니면 기존 방식 유지 (하위 호환성)
       const documentId = sessionId || userName;
-      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), documentId);
+      const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), documentId);
       
       // 이미 접속되어 있는지 확인
       const existingPresence = await getDoc(userPresenceRef);
@@ -472,10 +542,25 @@ export const useChatRoom = () => {
       await setDoc(userPresenceRef, presenceData);
 
       // 채팅방의 접속자 수 업데이트
-      const roomRef = doc(db, 'chatRooms', roomId);
-      await updateDoc(roomRef, {
-        onlineCount: increment(1)
-      });
+      const roomRef = doc(db, collectionName, roomId);
+      try {
+        await updateDoc(roomRef, {
+          onlineCount: increment(1)
+        });
+      } catch (error: any) {
+        if (error?.code === 'not-found') {
+          console.log('Room document not found for increment');
+        } else {
+          console.log('Initializing onlineCount field for increment');
+          try {
+            await updateDoc(roomRef, {
+              onlineCount: 1
+            });
+          } catch (retryError: any) {
+            console.error('Failed to initialize onlineCount for increment:', retryError);
+          }
+        }
+      }
     } catch (error) {
       console.error('Error incrementing online users:', error);
       throw error;
@@ -484,9 +569,24 @@ export const useChatRoom = () => {
 
   const decrementOnlineUsers = async (roomId: string, userName: string, sessionId?: string) => {
     try {
+      // 먼저 어느 컬렉션에 룸이 있는지 확인
+      const room = await getRoomById(roomId);
+      if (!room) {
+        console.log('Room not found, skipping decrement');
+        return;
+      }
+
+      // 새로운 rooms 컬렉션에 있는지 확인
+      const newRoomRef = doc(db, 'rooms', roomId);
+      const newRoomDoc = await getDoc(newRoomRef);
+      const isNewRoom = newRoomDoc.exists();
+
+      // 적절한 컬렉션 선택
+      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
+      
       // 세션 ID가 제공된 경우 새로운 방식 사용, 아니면 기존 방식 유지 (하위 호환성)
       const documentId = sessionId || userName;
-      const userPresenceRef = doc(collection(db, 'chatRooms', roomId, 'onlineUsers'), documentId);
+      const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), documentId);
       
       // 사용자의 접속 상태 문서가 존재하는지 확인
       const existingPresence = await getDoc(userPresenceRef);
@@ -499,12 +599,18 @@ export const useChatRoom = () => {
       await deleteDoc(userPresenceRef);
 
       // 채팅방의 접속자 수 업데이트
-      const roomRef = doc(db, 'chatRooms', roomId);
-      const roomDoc = await getDoc(roomRef);
-      if (roomDoc.exists() && roomDoc.data().onlineCount > 0) {
-        await updateDoc(roomRef, {
-          onlineCount: increment(-1)
-        });
+      const roomRef = doc(db, collectionName, roomId);
+      try {
+        const roomDoc = await getDoc(roomRef);
+        if (roomDoc.exists() && roomDoc.data().onlineCount > 0) {
+          await updateDoc(roomRef, {
+            onlineCount: increment(-1)
+          });
+        }
+      } catch (error: any) {
+        if (error?.code !== 'not-found') {
+          console.error('Error decrementing online users count:', error);
+        }
       }
     } catch (error) {
       console.error('Error decrementing online users:', error);

@@ -85,7 +85,8 @@ export const useUserRooms = () => {
         ownerId: currentUser.uid,
         ownerEmail: authUser.email,
         ownerDisplayName: authUser.displayName || adminName,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        onlineCount: 0
       };
 
       const docRef = await addDoc(collection(db, 'rooms'), roomData);

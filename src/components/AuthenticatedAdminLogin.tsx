@@ -182,7 +182,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
             <img 
               src="/logo.webp" 
               alt="MUNE Logo" 
-              className="w-10 h-10 object-contain"
+              className="w-10 h-10 object-contain bg-white rounded-full"
             />
             <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
           </div>
@@ -361,7 +361,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-          제작 <span className="font-medium text-blue-700">@라이프오브파이</span>
+        🌿 제작 : <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
       </div>
       

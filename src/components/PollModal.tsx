@@ -216,11 +216,10 @@ const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onCreatePoll }) 
                 <CloudIcon className="w-4 h-4" />
                 워드 클라우드 설문조사
               </h4>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>• 참여자들이 자유롭게 텍스트로 응답할 수 있습니다</li>
+              <ul className="text-sm text-blue-700 space-y-1 text-xs">
                 <li>• 응답된 단어들이 실시간으로 워드 클라우드에 표시됩니다</li>
                 <li>• 자주 언급된 단어일수록 크게 표시됩니다</li>
-                <li>• 참여자들의 다양한 의견을 한눈에 파악할 수 있습니다</li>
+                <li>• 창의 가로폭에 따라 주요단어만 강조되어 표시됩니다</li>
               </ul>
             </div>
           )}

@@ -75,7 +75,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
             <img 
               src="/logo.webp" 
               alt="MUNE Logo" 
-              className="w-10 h-10 object-contain"
+              className="w-10 h-10 object-contain bg-white rounded-full"
             />
             <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
           </div>
@@ -203,7 +203,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
 
 
         <div className="mt-6 text-center">
-          <p className="text-blue-600">
+          <p className="text-blue-600 text-sm">
             이미 계정이 있으신가요?{' '}
             <button
               onClick={onSwitchToLogin}
@@ -218,7 +218,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-          제작 <span className="font-medium text-blue-700">@라이프오브파이</span>
+        🌿 제작 : <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
       </div>
     </div>

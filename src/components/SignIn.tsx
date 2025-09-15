@@ -87,7 +87,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
               <img 
                 src="/logo.webp" 
                 alt="MUNE Logo" 
-                className="w-10 h-10 object-contain"
+                className="w-10 h-10 object-contain bg-white rounded-full"
               />
               <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
             </div>
@@ -151,7 +151,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
             <img 
               src="/logo.webp" 
               alt="MUNE Logo" 
-              className="w-10 h-10 object-contain"
+              className="w-10 h-10 object-contain bg-white rounded-full"
             />
             <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
           </div>

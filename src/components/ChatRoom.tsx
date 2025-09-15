@@ -349,7 +349,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="메시지를 입력하세요... (Enter: 전송, Ctrl+Enter: 줄바꿈)"
             className="flex-1 px-4 py-2 modern-input resize-none min-h-[2.5rem] max-h-32 overflow-y-auto"
             maxLength={500}
             rows={1}

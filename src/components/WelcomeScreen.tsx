@@ -20,18 +20,17 @@ const WelcomeScreen: React.FC = () => {
       <div className="relative z-10 w-full max-w-lg">
         {/* 메인 로고 및 제목 */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-1 mb-6">
-            <div className="relative">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="relative ">
               <img 
                 src="/logo.webp" 
                 alt="MUNE Logo" 
-                className="w-16 h-16 object-contain"
+                className="w-12 h-12 object-contain bg-white rounded-full"
               />
               <div className="absolute -inset-2 bg-white/20 rounded-full blur-md -z-10"></div>
             </div>
             <div>
               <h1 className="text-4xl font-bold text-blue-900 drop-shadow-sm tracking-tight">MUNE</h1>
-              <div className="h-1 w-28 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mt-2 mx-auto ml-0"></div>
             </div>
           </div>
           
@@ -72,7 +71,7 @@ const WelcomeScreen: React.FC = () => {
       {/* 크레딧 */}
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-          제작 <span className="font-medium text-blue-700">@라이프오브파이</span>
+          🌿 제작 : <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
       </div>
     </div>
