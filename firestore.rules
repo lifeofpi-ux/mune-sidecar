@@ -1,130 +1,39 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // 헬퍼 함수들
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isOwner(ownerId) {
-      return isAuthenticated() && request.auth.uid == ownerId;
-    }
-    
-    function isValidRoomData() {
-      return request.resource.data.keys().hasAll(['name', 'adminName', 'adminPassword', 'ownerId', 'ownerEmail', 'ownerDisplayName', 'isActive']) &&
-             request.resource.data.name is string &&
-             request.resource.data.name.size() > 0 &&
-             request.resource.data.name.size() <= 100 &&
-             request.resource.data.adminName is string &&
-             request.resource.data.adminName.size() > 0 &&
-             request.resource.data.adminName.size() <= 50 &&
-             request.resource.data.adminPassword is string &&
-             request.resource.data.adminPassword.size() >= 4 &&
-             request.resource.data.ownerId is string &&
-             request.resource.data.ownerEmail is string &&
-             request.resource.data.ownerDisplayName is string &&
-             request.resource.data.isActive is bool;
-    }
-    
-    function isValidUserData() {
-      return request.resource.data.keys().hasAll(['uid', 'email', 'displayName', 'createdAt', 'lastLoginAt', 'roomCount']) &&
-             request.resource.data.uid is string &&
-             request.resource.data.email is string &&
-             request.resource.data.displayName is string &&
-             request.resource.data.roomCount is number &&
-             request.resource.data.roomCount >= 0 &&
-             request.resource.data.roomCount <= 3;
-    }
-    
-    function isValidMessageData() {
-      return request.resource.data.keys().hasAll(['text', 'userName', 'timestamp', 'type']) &&
-             request.resource.data.text is string &&
-             request.resource.data.text.size() > 0 &&
-             request.resource.data.text.size() <= 1000 &&
-             request.resource.data.userName is string &&
-             request.resource.data.userName.size() > 0 &&
-             request.resource.data.userName.size() <= 50 &&
-             request.resource.data.type is string &&
-             request.resource.data.type in ['user', 'system', 'admin'];
-    }
-    
-    // 사용자 프로필 컬렉션
-    match /users/{userId} {
-      // 본인만 읽기/쓰기 가능
-      allow read, write: if isOwner(userId);
-      
-      // 생성 시 데이터 검증
-      allow create: if isOwner(userId) && isValidUserData();
-      
-      // 업데이트 시 데이터 검증 및 중요 필드 보호
-      allow update: if isOwner(userId) && 
-                   isValidUserData() &&
-                   request.resource.data.uid == resource.data.uid &&
-                   request.resource.data.email == resource.data.email &&
-                   request.resource.data.createdAt == resource.data.createdAt;
-    }
-    
-    // 채팅룸 컬렉션
-    match /rooms/{roomId} {
-      // 모든 사용자가 읽기 가능 (참여자들이 접근하기 위해)
-      allow read: if true;
-      
-      // 생성은 로그인한 사용자만 가능하고, 데이터 검증 필요
-      allow create: if isAuthenticated() && 
-                   isOwner(request.resource.data.ownerId) &&
-                   isValidRoomData();
-      
-      // 수정은 소유자만 가능하고, 소유자 정보는 변경 불가
-      allow update: if isOwner(resource.data.ownerId) && 
-                   isValidRoomData() &&
-                   request.resource.data.ownerId == resource.data.ownerId &&
-                   request.resource.data.ownerEmail == resource.data.ownerEmail &&
-                   request.resource.data.createdAt == resource.data.createdAt;
-      
-      // 삭제는 소유자만 가능
-      allow delete: if isOwner(resource.data.ownerId);
-    }
-    
-    // 채팅룸 메시지 컬렉션
-    match /rooms/{roomId}/messages/{messageId} {
-      // 모든 사용자가 읽기 가능
-      allow read: if true;
-      
-      // 메시지 작성은 데이터 검증 필요
-      allow create: if isValidMessageData();
-      
-      // 메시지 수정/삭제는 불가 (채팅의 무결성 보장)
-      allow update, delete: if false;
-    }
-    
-    // 설문조사 및 기타 기능을 위한 컬렉션들
-    match /polls/{pollId} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-    
-    match /polls/{pollId}/votes/{voteId} {
-      allow read: if true;
-      allow create: if true; // 익명 투표 허용
-      allow update, delete: if false; // 투표 조작 방지
-    }
-    
-    // 레거시 컬렉션 (기존 호환성 유지, 점진적 제거 예정)
-    match /chatRooms/{roomId} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-    
-    match /messages/{messageId} {
-      allow read: if true;
-      allow create: if isValidMessageData();
-      allow update, delete: if false;
-    }
-    
-    // 기타 모든 접근 차단
+
+    // 기본적으로 모든 읽기 및 쓰기를 거부합니다.
     match /{document=**} {
       allow read, write: if false;
     }
+
+    // 사용자는 자신의 프로필 정보만 생성, 읽기, 업데이트할 수 있습니다.
+    match /users/{userId} {
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // 채팅방에 대한 규칙입니다.
+    match /rooms/{roomId} {
+      // 로그인한 사용자는 채팅방 정보를 읽을 수 있습니다.
+      allow read: if request.auth != null;
+      // 로그인한 사용자는 자신이 소유한 채팅방을 만들 수 있습니다.
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      // 방 소유자만 방을 업데이트하거나 삭제할 수 있습니다.
+      allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+
+      // 채팅방에 접속 중인 사용자 목록에 대한 규칙입니다.
+      match /onlineUsers/{sessionId} {
+        // 로그인한 사용자는 접속자 정보를 생성, 읽기, 삭제할 수 있습니다.
+        allow read, create, delete: if request.auth != null;
+      }
+    }
+
+    // 메시지에 대한 규칙입니다. (루트 컬렉션)
+    match /messages/{messageId} {
+      // 로그인한 사용자는 메시지를 생성(전송), 읽기, 업데이트(투표 등)할 수 있습니다.
+      // 앱 로직에서 특정 방의 메시지만 필터링합니다.
+      allow read, write, update: if request.auth != null;
+    }
   }
-} 
+}

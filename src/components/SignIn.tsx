@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { 
+  EnvelopeIcon, 
+  LockClosedIcon, 
+  EyeIcon, 
+  EyeSlashIcon,
+  ArrowRightOnRectangleIcon,
+  KeyIcon
+} from '@heroicons/react/24/outline';
 
 interface SignInProps {
   onSuccess: () => void;
@@ -9,6 +17,7 @@ interface SignInProps {
 const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
@@ -96,17 +105,23 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
           <form onSubmit={handleResetPassword} className="space-y-6">
             <div>
               <label htmlFor="resetEmail" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-                이메일
+                <div className="flex items-center space-x-1">
+                  <EnvelopeIcon className="w-4 h-4" />
+                  <span>이메일</span>
+                </div>
               </label>
-              <input
-                type="email"
-                id="resetEmail"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-                placeholder="등록된 이메일을 입력하세요"
-                required
-              />
+              <div className="relative">
+                <input
+                  type="email"
+                  id="resetEmail"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                  placeholder="등록된 이메일을 입력하세요"
+                  required
+                />
+                <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
             </div>
 
             {error && (
@@ -126,7 +141,10 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
                 type="submit"
                 className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                비밀번호 재설정 이메일 전송
+                <div className="flex items-center justify-center space-x-2">
+                  <KeyIcon className="w-5 h-5" />
+                  <span>비밀번호 재설정 이메일 전송</span>
+                </div>
               </button>
               
               <button
@@ -161,32 +179,51 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              이메일
+              <div className="flex items-center space-x-1">
+                <EnvelopeIcon className="w-4 h-4" />
+                <span>이메일</span>
+              </div>
             </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="이메일을 입력하세요"
-              required
-            />
+            <div className="relative">
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="이메일을 입력하세요"
+                required
+              />
+              <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              비밀번호
+              <div className="flex items-center space-x-1">
+                <LockClosedIcon className="w-4 h-4" />
+                <span>비밀번호</span>
+              </div>
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="비밀번호를 입력하세요"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-12 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="비밀번호를 입력하세요"
+                required
+              />
+              <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -200,7 +237,10 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
               disabled={loading}
               className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? '로그인 중...' : '로그인'}
+              <div className="flex items-center justify-center space-x-2">
+                <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                <span>{loading ? '로그인 중...' : '로그인'}</span>
+              </div>
             </button>
           </form>
 

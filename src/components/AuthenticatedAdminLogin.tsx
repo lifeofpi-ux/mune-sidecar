@@ -3,7 +3,12 @@ import { useAuth } from '../hooks/useAuth';
 import { useUserRooms } from '../hooks/useUserRooms';
 import UserProfile from './UserProfile';
 import Modal from './Modal';
-import { UserIcon } from '@heroicons/react/24/outline';
+import { 
+  UserIcon,
+  ChatBubbleLeftRightIcon, 
+  LockClosedIcon,
+  PlusIcon
+} from '@heroicons/react/24/outline';
 
 interface AuthenticatedAdminLoginProps {
   onRoomCreated: (roomId: string, roomName: string, adminName: string) => void;
@@ -242,49 +247,67 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
             <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="roomName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-                채팅룸 이름
+                <div className="flex items-center space-x-1">
+                  <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                  <span>채팅룸 이름</span>
+                </div>
               </label>
-              <input
-                type="text"
-                id="roomName"
-                value={roomName}
-                onChange={(e) => setRoomName(e.target.value)}
-                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-                placeholder="예: 2025 트라이팟 컨퍼런스"
-                disabled={loading}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  id="roomName"
+                  value={roomName}
+                  onChange={(e) => setRoomName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                  placeholder="예: 라이프오브파이 바이브 코딩 연수"
+                  disabled={loading}
+                />
+                <ChatBubbleLeftRightIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
             </div>
 
             <div>
               <label htmlFor="adminName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-                강의자 이름
+                <div className="flex items-center space-x-1">
+                  <UserIcon className="w-4 h-4" />
+                  <span>강의자 이름</span>
+                </div>
               </label>
-              <input
-                type="text"
-                id="adminName"
-                value={adminName}
-                onChange={(e) => setAdminName(e.target.value)}
-                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-                placeholder="채팅에서 표시될 이름"
-                disabled={loading}
-                maxLength={20}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  id="adminName"
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                  placeholder="채팅에서 표시될 이름"
+                  disabled={loading}
+                  maxLength={20}
+                />
+                <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
             </div>
 
             <div>
               <label htmlFor="adminPassword" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-                채팅룸 비밀번호
+                <div className="flex items-center space-x-1">
+                  <LockClosedIcon className="w-4 h-4" />
+                  <span>채팅룸 비밀번호</span>
+                </div>
               </label>
-              <input
-                type="password"
-                id="adminPassword"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-                placeholder="참여자들이 입장시 입력할 비밀번호"
-                disabled={loading}
-                autoComplete="new-password"
-              />
+              <div className="relative">
+                <input
+                  type="password"
+                  id="adminPassword"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                  placeholder="참여자들이 입장시 입력할 비밀번호"
+                  disabled={loading}
+                  autoComplete="new-password"
+                />
+                <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
             </div>
 
             {error && (
@@ -298,7 +321,10 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
               disabled={loading || rooms.length >= 3}
               className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? '생성 중...' : rooms.length >= 3 ? '최대 개수 도달' : '채팅룸 생성'}
+              <div className="flex items-center justify-center space-x-2">
+                <PlusIcon className="w-5 h-5" />
+                <span>{loading ? '생성 중...' : rooms.length >= 3 ? '최대 개수 도달' : '채팅룸 생성'}</span>
+              </div>
             </button>
           </form>
           </div>

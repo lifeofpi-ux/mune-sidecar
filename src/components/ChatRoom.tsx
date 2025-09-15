@@ -17,6 +17,7 @@ interface ChatRoomProps {
 
 const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   const [message, setMessage] = useState('');
+  const [isComposing, setIsComposing] = useState(false); // 입력기 조합 상태를 추적
   const [showQR, setShowQR] = useState(false);
   const [showPollModal, setShowPollModal] = useState(false);
   const [showRandomPicker, setShowRandomPicker] = useState(false);
@@ -54,26 +55,29 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
     }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 메시지 전송 로직을 별도 함수로 분리
+  const submitMessage = async () => {
     if (!message.trim()) return;
-
     await sendMessage(user.name, message, user.isAdmin);
     setMessage('');
   };
 
+  // 폼 제출 이벤트 핸들러
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitMessage();
+  };
+
+  // 키보드 다운 이벤트 핸들러
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // 입력기 조합 중이거나, Ctrl 키가 눌렸으면 아무것도 하지 않음
+    if (isComposing || e.ctrlKey) {
+      return;
+    }
+
     if (e.key === 'Enter') {
-      if (e.ctrlKey) {
-        // Ctrl+Enter: 줄바꿈 (기본 동작 허용)
-        return;
-      } else {
-        // Enter: 메시지 전송
-        e.preventDefault();
-        if (message.trim()) {
-          handleSendMessage(e as any);
-        }
-      }
+      e.preventDefault(); // Enter 키의 기본 동작(줄바꿈)을 막음
+      submitMessage();    // 메시지 전송
     }
   };
 
@@ -265,7 +269,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
             return (
               <div key={msg.id}>
                 <div
-                  className={`flex ${msg.userName === user.name ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${msg.isAdmin ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className="flex items-start gap-2">
                     {/* + 버튼 (최신 관리자 메시지의 왼쪽에만 표시, 단 해당 메시지에 설문조사가 없는 경우에만) */}
@@ -280,7 +284,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                     )}
                     
                     <div
-                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      className={`max-w-full lg:max-w-full px-4 py-2 rounded-lg ${
                         msg.userName === user.name
                           ? 'bg-indigo-600 text-white'
                           : msg.isAdmin
@@ -344,11 +348,13 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
 
       {/* Message Input */}
       <div className="bg-white border-t p-4">
-        <form onSubmit={handleSendMessage} className="flex space-x-2">
+        <form onSubmit={handleFormSubmit} className="flex space-x-2">
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
             className="flex-1 px-4 py-2 modern-input resize-none min-h-[2.5rem] max-h-32 overflow-y-auto"
             maxLength={500}
             rows={1}

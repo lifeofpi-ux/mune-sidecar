@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useChatRoom } from '../hooks/useChat';
+import { UserIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
 interface UserLoginProps {
   onUserJoined: (userName: string, roomId: string, roomName: string, sessionId: string) => void;
@@ -123,18 +124,24 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-2">
-              참여자 이름
+              <div className="flex items-center space-x-1">
+                <UserIcon className="w-4 h-4" />
+                <span>참여자 이름</span>
+              </div>
             </label>
-            <input
-              type="text"
-              id="userName"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              className="w-full px-4 py-2 modern-input"
-              placeholder="채팅에서 사용할 이름을 입력하세요"
-              disabled={loading || !roomInfo}
-              maxLength={20}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="userName"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 modern-input"
+                placeholder="채팅에서 사용할 이름을 입력하세요"
+                disabled={loading || !roomInfo}
+                maxLength={20}
+              />
+              <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
             <p className="text-xs text-gray-500 mt-1">최대 20자까지 입력 가능합니다.</p>
           </div>
 
@@ -149,7 +156,10 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
             disabled={loading || !roomInfo || !userName.trim()}
             className="w-full modern-btn modern-btn-success py-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '입장 중...' : '강의룸 입장'}
+            <div className="flex items-center justify-center space-x-2">
+              <ArrowRightOnRectangleIcon className="w-5 h-5" />
+              <span>{loading ? '입장 중...' : '강의룸 입장'}</span>
+            </div>
           </button>
         </form>
 

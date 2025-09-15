@@ -16,6 +16,10 @@ import {
   getDoc
 } from 'firebase/firestore';
 import { db } from '../firebase';
+
+// 디버깅을 위한 고유 ID 생성기
+const generateId = () => Math.random().toString(36).substr(2, 5);
+
 import { ChatMessage, ChatRoom, Poll, User } from '../types';
 
 export const useChat = (roomId: string | null, user: User | null) => {
@@ -27,30 +31,30 @@ export const useChat = (roomId: string | null, user: User | null) => {
 
   // 사용자 접속 상태 관리
   const setupUserPresence = async () => {
-    if (!roomId || !user || isPresenceSetup.current) return;
-    
+    const presenceId = generateId();
+    console.log(`[Presence #${presenceId}] setupUserPresence: START. Room: ${roomId}, User: ${user?.name}, isPresenceSetup: ${isPresenceSetup.current}`);
+
+    if (!roomId || !user || isPresenceSetup.current) {
+      console.log(`[Presence #${presenceId}] setupUserPresence: SKIPPED (already setup or missing info).`);
+      return null;
+    }
+
     try {
-      // 새로운 rooms 컬렉션에 있는지 먼저 확인
       const newRoomRef = doc(db, 'rooms', roomId);
       const newRoomDoc = await getDoc(newRoomRef);
       const isNewRoom = newRoomDoc.exists();
-
-      // 적절한 컬렉션 선택
       const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
-      
-      // 세션 ID를 문서 ID로 사용하고, 닉네임은 데이터로 저장
+
       const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), user.sessionId);
       const roomRef = doc(db, collectionName, roomId);
 
-      // 이미 접속되어 있는지 확인
       const existingPresence = await getDoc(userPresenceRef);
       if (existingPresence.exists()) {
-        console.log('User already online, skipping presence setup');
+        console.log(`[Presence #${presenceId}] User already online, skipping presence setup`);
         isPresenceSetup.current = true;
-        return;
+        return null;
       }
 
-      // 사용자의 접속 상태 문서 생성 (세션 ID로 문서 생성, 닉네임 저장)
       await setDoc(userPresenceRef, {
         nickname: user.name,
         sessionId: user.sessionId,
@@ -58,187 +62,197 @@ export const useChat = (roomId: string | null, user: User | null) => {
         joinedAt: serverTimestamp()
       });
 
-      // 채팅방의 접속자 수 증가
-      try {
-        await updateDoc(roomRef, {
-          onlineCount: increment(1)
-        });
-      } catch (error: any) {
-        // 문서가 존재하지 않거나 onlineCount 필드가 없는 경우 초기화
-        if (error?.code === 'not-found') {
-          console.log('Room document not found, skipping online count update');
-        } else {
-          // onlineCount 필드가 없는 경우 초기화 후 재시도
-          console.log('Initializing onlineCount field for room:', roomId);
-          try {
-            await updateDoc(roomRef, {
-              onlineCount: 1
-            });
-          } catch (retryError: any) {
-            console.error('Failed to initialize onlineCount:', retryError);
-            // 초기화도 실패하면 무시하고 계속 진행
-          }
-        }
-      }
+      await updateDoc(roomRef, { onlineCount: increment(1) }).catch(() => {
+        return setDoc(roomRef, { onlineCount: 1 }, { merge: true });
+      });
 
       isPresenceSetup.current = true;
+      console.log(`[Presence #${presenceId}] setupUserPresence: SUCCESS.`);
 
-      // 브라우저가 닫히거나 페이지가 언로드될 때 실행
-      const handleBeforeUnload = async () => {
-        try {
-          await deleteDoc(userPresenceRef);
-          await updateDoc(roomRef, {
-            onlineCount: increment(-1)
-          });
-        } catch (error) {
-          console.error('Error cleaning up user presence:', error);
-        }
+      const handleBeforeUnload = () => {
+        console.log(`[Presence #${presenceId}] handleBeforeUnload: Cleaning up presence for user ${user.name}`);
+        deleteDoc(userPresenceRef);
+        updateDoc(roomRef, { onlineCount: increment(-1) });
       };
 
       window.addEventListener('beforeunload', handleBeforeUnload);
+
+      // 클린업 함수 반환
+      return () => {
+        console.log(`[Presence #${presenceId}] CLEANUP: Removing 'beforeunload' listener.`);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+
     } catch (error) {
-      console.error('Error setting up user presence:', error);
+      console.error(`[Presence #${presenceId}] Error setting up user presence:`, error);
+      return null;
     }
   };
 
   // 사용자 접속 해제
   const cleanupUserPresence = async () => {
-    if (!roomId || !user || !isPresenceSetup.current) return;
-    
+    const presenceId = generateId();
+    console.log(`[Presence #${presenceId}] cleanupUserPresence: START. Room: ${roomId}, User: ${user?.name}, isPresenceSetup: ${isPresenceSetup.current}`);
+
+    if (!roomId || !user || !isPresenceSetup.current) {
+      console.log(`[Presence #${presenceId}] cleanupUserPresence: SKIPPED (not setup or missing info).`);
+      return;
+    }
+
     try {
-      // 새로운 rooms 컬렉션에 있는지 먼저 확인
       const newRoomRef = doc(db, 'rooms', roomId);
       const newRoomDoc = await getDoc(newRoomRef);
       const isNewRoom = newRoomDoc.exists();
-
-      // 적절한 컬렉션 선택
       const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
-      
+
       const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), user.sessionId);
       const roomRef = doc(db, collectionName, roomId);
-      
+
       const existingPresence = await getDoc(userPresenceRef);
       if (existingPresence.exists()) {
         await deleteDoc(userPresenceRef);
-        try {
-          await updateDoc(roomRef, {
-            onlineCount: increment(-1)
-          });
-        } catch (error: any) {
-          if (error?.code !== 'not-found') {
-            console.error('Error decrementing online count:', error);
+        await updateDoc(roomRef, { onlineCount: increment(-1) }).catch(err => {
+          if (err?.code !== 'not-found') {
+            console.error(`[Presence #${presenceId}] Error decrementing online count:`, err);
           }
-        }
+        });
+        console.log(`[Presence #${presenceId}] cleanupUserPresence: SUCCESS.`);
       }
-      
+
       isPresenceSetup.current = false;
     } catch (error) {
-      console.error('Error cleaning up user presence:', error);
+      console.error(`[Presence #${presenceId}] Error cleaning up user presence:`, error);
     }
   };
 
   useEffect(() => {
+    const effectId = generateId();
+    console.log(`%c[Effect #${effectId}] RUNNING. Room: ${roomId}, User: ${user?.name}`, 'color: blue; font-weight: bold;');
+
     if (!roomId || !user) {
+      console.log(`[Effect #${effectId}] SKIPPING (no roomId or user).`);
       setMessages([]);
       setLoading(false);
       return;
     }
 
-    let unsubscribeMessages: (() => void) | undefined;
-    let unsubscribeOnlineUsers: (() => void) | undefined;
-    let unsubscribeOnlineUsersList: (() => void) | undefined;
+    const unsubscribes: (() => void)[] = [];
+    let isCancelled = false;
 
-    const setupSubscriptions = async () => {
-      // 사용자 접속 상태 설정
-      setupUserPresence();
-
-      // 새로운 rooms 컬렉션에 있는지 먼저 확인
-      const newRoomRef = doc(db, 'rooms', roomId);
-      const newRoomDoc = await getDoc(newRoomRef);
-      const isNewRoom = newRoomDoc.exists();
-
-      // 적절한 컬렉션 선택
-      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
-
-      // 메시지 구독 (메시지는 별도 컬렉션에 있으므로 그대로 유지)
-      const messagesRef = collection(db, 'messages');
-      const q = query(
-        messagesRef,
-        where('roomId', '==', roomId),
-        orderBy('timestamp', 'asc')
-      );
-
-      unsubscribeMessages = onSnapshot(q, (snapshot) => {
-        const newMessages: ChatMessage[] = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          newMessages.push({
-            id: doc.id,
-            roomId: data.roomId,
-            userName: data.userName,
-            message: data.message,
-            timestamp: data.timestamp?.toDate() || new Date(),
-            isAdmin: data.isAdmin || false,
-            poll: data.poll ? {
-              id: data.poll.id,
-              question: data.poll.question,
-              options: data.poll.options || [],
-              createdAt: data.poll.createdAt?.toDate() || new Date(),
-              isActive: data.poll.isActive !== undefined ? data.poll.isActive : true,
-              type: data.poll.type || 'multiple-choice',
-              wordCloudResponses: data.poll.wordCloudResponses || []
-            } : undefined
-          });
-        });
-        setMessages(newMessages);
-        setLoading(false);
-      });
-
-      // 접속자 수 구독
-      const roomRef = doc(db, collectionName, roomId);
-      unsubscribeOnlineUsers = onSnapshot(roomRef, (doc) => {
-        if (doc.exists()) {
-          setOnlineUsers(doc.data().onlineCount || 0);
+    const setupAll = async () => {
+      console.log(`[Effect #${effectId}] setupAll: START.`);
+      try {
+        const cleanupPresence = await setupUserPresence();
+        if (cleanupPresence) {
+          unsubscribes.push(cleanupPresence);
         }
-      });
 
-      // 접속자 목록 구독
-      const onlineUsersRef = collection(db, collectionName, roomId, 'onlineUsers');
-      unsubscribeOnlineUsersList = onSnapshot(onlineUsersRef, (snapshot) => {
-        const usersList: string[] = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.nickname) {
-            usersList.push(data.nickname);
-          }
+        if (isCancelled) {
+          console.log(`[Effect #${effectId}] setupAll: CANCELLED during presence setup.`);
+          return;
+        }
+
+        const newRoomRef = doc(db, 'rooms', roomId);
+        const newRoomDoc = await getDoc(newRoomRef);
+        if (isCancelled) {
+          console.log(`[Effect #${effectId}] setupAll: CANCELLED after getting room doc.`);
+          return;
+        }
+        const collectionName = newRoomDoc.exists() ? 'rooms' : 'chatRooms';
+        console.log(`[Effect #${effectId}] setupAll: Determined collection name: ${collectionName}`);
+
+        // 메시지 구독
+        console.log(`[Effect #${effectId}] setupAll: Subscribing to MESSAGES.`);
+        const messagesRef = collection(db, 'messages');
+        const messagesQuery = query(messagesRef, where('roomId', '==', roomId), orderBy('timestamp', 'asc'));
+        const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
+          console.log(`%c[Effect #${effectId}] ONSNAPSHOT: MESSAGES received (${snapshot.docs.length} docs).`, 'color: green;');
+          const newMessages: ChatMessage[] = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              roomId: data.roomId,
+              userName: data.userName,
+              message: data.message,
+              timestamp: data.timestamp?.toDate() || new Date(),
+              isAdmin: data.isAdmin || false,
+              poll: data.poll ? {
+                id: data.poll.id,
+                question: data.poll.question,
+                options: data.poll.options || [],
+                createdAt: data.poll.createdAt?.toDate() || new Date(),
+                isActive: data.poll.isActive !== undefined ? data.poll.isActive : true,
+                type: data.poll.type || 'multiple-choice',
+                wordCloudResponses: data.poll.wordCloudResponses || []
+              } : undefined
+            };
+          });
+          setMessages(newMessages);
+          setLoading(false);
         });
-        setOnlineUsersList(usersList);
-      });
+        unsubscribes.push(() => {
+          console.log(`%c[Effect #${effectId}] CLEANUP: Unsubscribing from MESSAGES.`, 'color: orange;');
+          unsubscribeMessages();
+        });
+
+        // 접속자 수 구독
+        console.log(`[Effect #${effectId}] setupAll: Subscribing to ONLINE USERS COUNT.`);
+        const roomRef = doc(db, collectionName, roomId);
+        const unsubscribeOnlineUsers = onSnapshot(roomRef, (doc) => {
+          console.log(`%c[Effect #${effectId}] ONSNAPSHOT: ONLINE USERS COUNT received.`, 'color: green;');
+          setOnlineUsers(doc.data()?.onlineCount || 0);
+        });
+        unsubscribes.push(() => {
+          console.log(`%c[Effect #${effectId}] CLEANUP: Unsubscribing from ONLINE USERS COUNT.`, 'color: orange;');
+          unsubscribeOnlineUsers();
+        });
+
+        // 접속자 목록 구독
+        console.log(`[Effect #${effectId}] setupAll: Subscribing to ONLINE USERS LIST.`);
+        const onlineUsersRef = collection(db, collectionName, roomId, 'onlineUsers');
+        const unsubscribeOnlineUsersList = onSnapshot(onlineUsersRef, (snapshot) => {
+          console.log(`%c[Effect #${effectId}] ONSNAPSHOT: ONLINE USERS LIST received (${snapshot.docs.length} docs).`, 'color: green;');
+          const usersList = snapshot.docs.map(doc => doc.data().nickname).filter(Boolean);
+          setOnlineUsersList(usersList);
+        });
+        unsubscribes.push(() => {
+          console.log(`%c[Effect #${effectId}] CLEANUP: Unsubscribing from ONLINE USERS LIST.`, 'color: orange;');
+          unsubscribeOnlineUsersList();
+        });
+
+        console.log(`[Effect #${effectId}] setupAll: All subscriptions setup.`);
+
+      } catch (error) {
+        console.error(`[Effect #${effectId}] setupAll: ERROR`, error);
+        setLoading(false);
+      }
     };
 
-    // 네트워크 상태 모니터링
+    setupAll();
+
     const handleOnline = () => {
+      console.log(`[Effect #${effectId}] Network status: online.`);
       if (!isPresenceSetup.current) {
         setupUserPresence();
       }
     };
-
-    const handleOffline = async () => {
-      await cleanupUserPresence();
+    const handleOffline = () => {
+      console.log(`[Effect #${effectId}] Network status: offline.`);
+      cleanupUserPresence();
     };
-
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-
-    setupSubscriptions();
-
-    return () => {
-      cleanupUserPresence();
-      if (unsubscribeMessages) unsubscribeMessages();
-      if (unsubscribeOnlineUsers) unsubscribeOnlineUsers();
-      if (unsubscribeOnlineUsersList) unsubscribeOnlineUsersList();
+    unsubscribes.push(() => {
+      console.log(`[Effect #${effectId}] CLEANUP: Removing network listeners.`);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+    });
+
+    return () => {
+      console.log(`%c[Effect #${effectId}] CLEANUP RUNNING.`, 'color: red; font-weight: bold;');
+      isCancelled = true;
+      unsubscribes.forEach(unsub => unsub());
+      cleanupUserPresence();
     };
   }, [roomId, user]);
 

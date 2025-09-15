@@ -108,15 +108,18 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
                 <div className="flex-1">
                   {showEditName ? (
                     <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={newDisplayName}
-                        onChange={(e) => setNewDisplayName(e.target.value)}
-                        className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="이름을 입력하세요"
-                        maxLength={20}
-                        disabled={loading}
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={newDisplayName}
+                          onChange={(e) => setNewDisplayName(e.target.value)}
+                          className="w-full pl-8 pr-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="이름을 입력하세요"
+                          maxLength={20}
+                          disabled={loading}
+                        />
+                        <PencilIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
+                      </div>
                       <div className="flex space-x-2">
                         <button
                           onClick={handleUpdateDisplayName}

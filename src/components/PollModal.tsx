@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Poll, PollOption } from '../types';
-import { ChartBarIcon, PlusIcon, XMarkIcon, CloudIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, PlusIcon, XMarkIcon, CloudIcon, QuestionMarkCircleIcon, ListBulletIcon } from '@heroicons/react/24/outline';
 
 interface PollModalProps {
   isOpen: boolean;
@@ -146,7 +146,10 @@ const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onCreatePoll }) 
           {/* 질문 입력 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              질문 <span className="text-red-500">*</span>
+              <div className="flex items-center space-x-1">
+                <QuestionMarkCircleIcon className="w-4 h-4" />
+                <span>질문 <span className="text-red-500">*</span></span>
+              </div>
             </label>
             <textarea
               value={question}
@@ -165,7 +168,10 @@ const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onCreatePoll }) 
           {activeTab === 'multiple-choice' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                선택지 <span className="text-red-500">*</span>
+                <div className="flex items-center space-x-1">
+                  <ListBulletIcon className="w-4 h-4" />
+                  <span>선택지 <span className="text-red-500">*</span></span>
+                </div>
               </label>
               <div className="space-y-2">
                 {options.map((option, index) => (
