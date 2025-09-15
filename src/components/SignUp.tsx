@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { 
+  UserIcon, 
+  EnvelopeIcon, 
+  LockClosedIcon, 
+  EyeIcon, 
+  EyeSlashIcon,
+  UserPlusIcon
+} from '@heroicons/react/24/outline';
 
 interface SignUpProps {
   onSuccess: () => void;
@@ -13,6 +21,8 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { signup } = useAuth();
 
@@ -75,64 +85,102 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="displayName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              이름
+              <div className="flex items-center space-x-1">
+                <UserIcon className="w-4 h-4" />
+                <span>이름</span>
+              </div>
             </label>
-            <input
-              type="text"
-              id="displayName"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="표시될 이름을 입력하세요"
-              required
-              maxLength={20}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="displayName"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="표시될 이름을 입력하세요"
+                required
+                maxLength={20}
+              />
+              <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
           </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              이메일
+              <div className="flex items-center space-x-1">
+                <EnvelopeIcon className="w-4 h-4" />
+                <span>이메일</span>
+              </div>
             </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="이메일을 입력하세요"
-              required
-            />
+            <div className="relative">
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="이메일을 입력하세요"
+                required
+              />
+              <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              비밀번호
+              <div className="flex items-center space-x-1">
+                <LockClosedIcon className="w-4 h-4" />
+                <span>비밀번호</span>
+              </div>
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="비밀번호를 입력하세요 (최소 6자)"
-              required
-              minLength={6}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-12 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="비밀번호를 입력하세요 (최소 6자)"
+                required
+                minLength={6}
+              />
+              <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              비밀번호 확인
+              <div className="flex items-center space-x-1">
+                <LockClosedIcon className="w-4 h-4" />
+                <span>비밀번호 확인</span>
+              </div>
             </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="비밀번호를 다시 입력하세요"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full pl-10 pr-12 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="비밀번호를 다시 입력하세요"
+                required
+              />
+              <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showConfirmPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -146,7 +194,10 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
             disabled={loading}
             className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '회원가입 중...' : '회원가입'}
+            <div className="flex items-center justify-center space-x-2">
+              <UserPlusIcon className="w-5 h-5" />
+              <span>{loading ? '회원가입 중...' : '회원가입'}</span>
+            </div>
           </button>
         </form>
 

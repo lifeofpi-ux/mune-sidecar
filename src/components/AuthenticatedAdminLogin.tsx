@@ -180,7 +180,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
             />
             <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
           </div>
-          <p className="bg-yellow-400 rounded-full px-2 py-1 w-fit mx-auto px-5 text-xs text-white mt-1">안녕하세요, {authUser.displayName}님!</p>
+          <p className="bg-black rounded-full px-2 py-1 w-fit mx-auto px-5 text-xs text-white mt-1">안녕하세요, {authUser.displayName}님!</p>
         </div>
 
         {/* 탭 네비게이션 */}

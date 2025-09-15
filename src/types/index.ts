@@ -64,6 +64,7 @@ export interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updateDisplayName: (newDisplayName: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
   loading: boolean;
 } 

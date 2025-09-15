@@ -215,7 +215,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-blue-600">
+          <p className="text-blue-600 text-sm">
             아직 계정이 없으신가요?{' '}
             <button
               onClick={onSwitchToSignUp}
@@ -230,7 +230,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-          제작 <span className="font-medium text-blue-700">@라이프오브파이</span>
+          🌿 제작 : <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
       </div>
     </div>

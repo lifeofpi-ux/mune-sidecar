@@ -143,6 +143,40 @@ export const useAuthState = () => {
   };
 
   // 회원 탈퇴
+  const updateDisplayName = async (newDisplayName: string) => {
+    if (!currentUser) {
+      throw new Error('로그인된 사용자가 없습니다.');
+    }
+
+    setLoading(true);
+    try {
+      // 1. Firebase Auth 프로필 업데이트
+      await updateProfile(currentUser, {
+        displayName: newDisplayName
+      });
+
+      // 2. Firestore 사용자 문서 업데이트
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        displayName: newDisplayName,
+        updatedAt: serverTimestamp()
+      });
+
+      // 3. 로컬 상태 업데이트
+      if (authUser) {
+        setAuthUser({
+          ...authUser,
+          displayName: newDisplayName
+        });
+      }
+
+    } catch (error: any) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const deleteAccount = async () => {
     if (!currentUser) {
       throw new Error('로그인된 사용자가 없습니다.');
@@ -230,6 +264,7 @@ export const useAuthState = () => {
     signInWithGoogle,
     logout,
     resetPassword,
+    updateDisplayName,
     deleteAccount,
     loading
   };

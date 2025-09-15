@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { UserIcon, ArrowRightOnRectangleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { 
+  UserIcon, 
+  ArrowRightOnRectangleIcon, 
+  TrashIcon, 
+  PencilIcon,
+  ChatBubbleLeftRightIcon,
+  CalendarDaysIcon,
+  CheckBadgeIcon,
+  ClockIcon
+} from '@heroicons/react/24/outline';
 
 interface UserProfileProps {
   onClose: () => void;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
-  const { currentUser, authUser, logout, deleteAccount } = useAuth();
+  const { currentUser, authUser, logout, deleteAccount, updateDisplayName } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditName, setShowEditName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState(authUser?.displayName || '');
 
   const handleLogout = async () => {
     setLoading(true);
@@ -17,6 +28,29 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
       await logout();
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateDisplayName = async () => {
+    if (!newDisplayName.trim()) {
+      alert('이름을 입력해주세요.');
+      return;
+    }
+
+    if (newDisplayName.trim() === authUser?.displayName) {
+      setShowEditName(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updateDisplayName(newDisplayName.trim());
+      setShowEditName(false);
+    } catch (error: any) {
+      console.error('Update display name error:', error);
+      alert(error.message || '이름 수정 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -72,22 +106,72 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
                   <UserIcon className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900">
-                    {authUser.displayName || '사용자'}
-                  </h4>
-                  <p className="text-sm text-gray-500">{authUser.email}</p>
+                  {showEditName ? (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={newDisplayName}
+                        onChange={(e) => setNewDisplayName(e.target.value)}
+                        className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="이름을 입력하세요"
+                        maxLength={20}
+                        disabled={loading}
+                      />
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleUpdateDisplayName}
+                          disabled={loading}
+                          className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors disabled:opacity-50"
+                        >
+                          {loading ? '저장 중...' : '저장'}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowEditName(false);
+                            setNewDisplayName(authUser?.displayName || '');
+                          }}
+                          disabled={loading}
+                          className="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors disabled:opacity-50"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="font-medium text-gray-900">
+                          {authUser.displayName || '사용자'}
+                        </h4>
+                        <button
+                          onClick={() => setShowEditName(true)}
+                          className="text-gray-400 hover:text-blue-500 transition-colors"
+                          title="이름 수정"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-sm text-gray-500">{authUser.email}</p>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* 통계 정보 */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-blue-50 rounded-lg text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <ChatBubbleLeftRightIcon className="w-6 h-6 text-blue-500" />
+                  </div>
                   <div className="text-2xl font-bold text-blue-600">
                     {authUser.roomCount}
                   </div>
                   <div className="text-sm text-blue-800">생성한 채팅룸</div>
                 </div>
                 <div className="p-4 bg-green-50 rounded-lg text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <CalendarDaysIcon className="w-6 h-6 text-green-500" />
+                  </div>
                   <div className="text-sm text-green-800 font-medium">가입일</div>
                   <div className="text-xs text-green-600 mt-1">
                     {formatDate(authUser.createdAt)}
@@ -98,13 +182,19 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
               {/* 계정 정보 */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-gray-600">마지막 로그인</span>
+                  <div className="flex items-center space-x-2">
+                    <ClockIcon className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-600">마지막 로그인</span>
+                  </div>
                   <span className="text-sm font-medium text-gray-900">
                     {formatDate(authUser.lastLoginAt)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-gray-600">계정 상태</span>
+                  <div className="flex items-center space-x-2">
+                    <CheckBadgeIcon className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-gray-600">계정 상태</span>
+                  </div>
                   <span className="text-sm font-medium text-green-600">활성</span>
                 </div>
               </div>
