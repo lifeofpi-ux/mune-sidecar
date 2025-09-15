@@ -354,6 +354,28 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
               로그인
             </button>
           </form>
+
+          {/* 회원 시스템 안내 */}
+          <div className="mt-8 p-4 bg-blue-50/80 backdrop-blur-sm rounded-lg border border-blue-200/50">
+            <h3 className="text-sm font-medium text-blue-900 mb-2">새로운 회원 시스템</h3>
+            <p className="text-xs text-blue-700 mb-3">
+              이제 회원가입을 통해 본인만의 채팅룸을 체계적으로 관리할 수 있습니다.
+            </p>
+            <div className="flex space-x-2">
+              <a
+                href="/signin"
+                className="flex-1 text-center py-2 px-3 text-xs font-medium text-blue-700 bg-white/80 border border-blue-300/50 rounded-md hover:bg-white transition-colors"
+              >
+                로그인
+              </a>
+              <a
+                href="/signup"
+                className="flex-1 text-center py-2 px-3 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                회원가입
+              </a>
+            </div>
+          </div>
         </div>
         
         {/* 크레딧 */}

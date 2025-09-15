@@ -1,12 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 강의룸 컬렉션
+    // 사용자 컬렉션 (새로 추가)
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // 채팅룸 컬렉션 (업데이트)
+    match /rooms/{roomId} {
+      // 모든 사용자가 읽기 가능 (참여자들이 접근하기 위해)
+      allow read: if true;
+      
+      // 생성은 로그인한 사용자만 가능하고, 본인을 소유자로 설정해야 함
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.ownerId;
+      
+      // 수정/삭제는 소유자만 가능
+      allow update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.ownerId;
+    }
+    
+    // 채팅룸 메시지 컬렉션
+    match /rooms/{roomId}/messages/{messageId} {
+      // 기존과 동일하게 모든 사용자가 읽기/쓰기 가능 (채팅 기능을 위해)
+      allow read, write: if true;
+    }
+    
+    // 레거시 컬렉션 (기존 호환성 유지)
     match /chatRooms/{roomId} {
       allow read, write: if true;
     }
     
-    // 메시지 컬렉션
     match /messages/{messageId} {
       allow read, write: if true;
     }

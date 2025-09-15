@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import AdminLogin from './components/AdminLogin';
+import WelcomeScreen from './components/WelcomeScreen';
+import AuthenticatedAdminLogin from './components/AuthenticatedAdminLogin';
+import SignIn from './components/SignIn';
+import SignUp from './components/SignUp';
 import UserLogin from './components/UserLogin';
 import ChatRoom from './components/ChatRoom';
+import AuthProvider from './components/AuthProvider';
+import { useAuth } from './hooks/useAuth';
 import { User } from './types';
 
 const AppContent = () => {
+  const { currentUser, loading: authLoading } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [roomName, setRoomName] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -26,6 +32,7 @@ const AppContent = () => {
       setLoading(false);
     }
   }, []);
+
 
   const generateSessionId = (): string => {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -67,15 +74,48 @@ const AppContent = () => {
     navigate('/');
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return <div className="flex items-center justify-center h-screen">로딩 중...</div>;
   }
+
+  // 관리자 화면 렌더링 로직
+  const renderAdminScreen = () => {
+    if (user) {
+      return <Navigate to={`/chat/${user.roomId}`} replace />;
+    }
+
+    // 로그인된 사용자가 있으면 새로운 인증 시스템 사용
+    if (currentUser) {
+      return <AuthenticatedAdminLogin onRoomCreated={handleRoomCreated} />;
+    }
+
+    // 로그인되지 않은 경우 새로운 환영 화면 표시
+    return <WelcomeScreen />;
+  };
 
   return (
     <Routes>
       <Route 
         path="/" 
-        element={!user ? <AdminLogin onRoomCreated={handleRoomCreated} /> : <Navigate to={`/chat/${user.roomId}`} replace />} 
+        element={renderAdminScreen()} 
+      />
+      <Route 
+        path="/signin" 
+        element={!user ? (
+          <SignIn 
+            onSuccess={() => navigate('/')}
+            onSwitchToSignUp={() => navigate('/signup')}
+          />
+        ) : <Navigate to={`/chat/${user.roomId}`} replace />} 
+      />
+      <Route 
+        path="/signup" 
+        element={!user ? (
+          <SignUp 
+            onSuccess={() => navigate('/')}
+            onSwitchToLogin={() => navigate('/signin')}
+          />
+        ) : <Navigate to={`/chat/${user.roomId}`} replace />} 
       />
       <Route 
         path="/join" 
@@ -92,9 +132,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

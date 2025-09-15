@@ -4,6 +4,11 @@ export interface ChatRoom {
   adminPassword: string;
   createdAt: Date;
   isActive: boolean;
+  // 새로 추가되는 필드들 (회원 시스템)
+  ownerId?: string; // 사용자 UID
+  ownerEmail?: string; // 사용자 이메일
+  ownerDisplayName?: string; // 사용자 표시명
+  adminName?: string; // 기존 호환성을 위해 유지
 }
 
 export interface ChatMessage {
@@ -38,4 +43,27 @@ export interface User {
   isAdmin: boolean;
   roomId: string;
   sessionId: string; // 브라우저 세션별 고유 ID
+}
+
+// 새로 추가: Firebase Auth 사용자 인터페이스
+export interface AuthUser {
+  uid: string;
+  email: string;
+  displayName?: string;
+  createdAt: Date;
+  lastLoginAt: Date;
+  roomCount: number; // 생성한 채팅룸 수
+}
+
+// 인증 컨텍스트용 인터페이스
+export interface AuthContextType {
+  currentUser: any | null; // Firebase User 타입
+  authUser: AuthUser | null;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, displayName: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
+  loading: boolean;
 } 
