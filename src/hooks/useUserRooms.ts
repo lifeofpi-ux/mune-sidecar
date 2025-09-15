@@ -9,8 +9,7 @@ import {
   updateDoc, 
   deleteDoc, 
   doc,
-  serverTimestamp,
-  increment
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { ChatRoom } from '../types';
@@ -20,11 +19,13 @@ export const useUserRooms = () => {
   const { currentUser, authUser } = useAuth();
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [loading, setLoading] = useState(true);
+  const [roomCount, setRoomCount] = useState<number>(0);
 
   // 사용자의 채팅룸 목록 실시간 구독
   useEffect(() => {
     if (!currentUser) {
       setRooms([]);
+      setRoomCount(0);
       setLoading(false);
       return;
     }
@@ -55,6 +56,7 @@ export const useUserRooms = () => {
       });
       
       setRooms(roomsData);
+      setRoomCount(roomsData.length); // 실제 채팅룸 수 설정
       setLoading(false);
     });
 
@@ -90,13 +92,6 @@ export const useUserRooms = () => {
       };
 
       const docRef = await addDoc(collection(db, 'rooms'), roomData);
-      
-      // 사용자의 룸 카운트 증가
-      const userRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userRef, {
-        roomCount: increment(1)
-      });
-
       return docRef.id;
     } catch (error) {
       console.error('Error creating room:', error);
@@ -112,12 +107,6 @@ export const useUserRooms = () => {
 
     try {
       await deleteDoc(doc(db, 'rooms', roomId));
-      
-      // 사용자의 룸 카운트 감소
-      const userRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userRef, {
-        roomCount: increment(-1)
-      });
     } catch (error) {
       console.error('Error deleting room:', error);
       throw error;
@@ -161,6 +150,7 @@ export const useUserRooms = () => {
 
   return {
     rooms,
+    roomCount,
     loading,
     createRoom,
     deleteRoom,

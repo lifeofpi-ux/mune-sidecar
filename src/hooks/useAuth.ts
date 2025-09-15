@@ -45,8 +45,7 @@ export const useAuthState = () => {
         email: user.email!,
         displayName: user.displayName || '',
         createdAt: new Date(),
-        lastLoginAt: new Date(),
-        roomCount: 0
+        lastLoginAt: new Date()
       };
       
       await setDoc(userRef, {
@@ -68,8 +67,7 @@ export const useAuthState = () => {
         email: userData.email,
         displayName: userData.displayName || '',
         createdAt: userData.createdAt?.toDate() || new Date(),
-        lastLoginAt: new Date(),
-        roomCount: userData.roomCount || 0
+        lastLoginAt: new Date()
       });
     }
   };

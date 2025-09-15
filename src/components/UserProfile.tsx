@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useUserRooms } from '../hooks/useUserRooms';
 import { 
   UserIcon, 
   ArrowRightOnRectangleIcon, 
@@ -17,6 +18,7 @@ interface UserProfileProps {
 
 const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
   const { currentUser, authUser, logout, deleteAccount, updateDisplayName } = useAuth();
+  const { roomCount } = useUserRooms();
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditName, setShowEditName] = useState(false);
@@ -167,7 +169,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
                     <ChatBubbleLeftRightIcon className="w-6 h-6 text-blue-500" />
                   </div>
                   <div className="text-2xl font-bold text-blue-600">
-                    {authUser.roomCount}
+                    {roomCount}
                   </div>
                   <div className="text-sm text-blue-800">생성한 채팅룸</div>
                 </div>

@@ -52,7 +52,6 @@ export interface AuthUser {
   displayName?: string;
   createdAt: Date;
   lastLoginAt: Date;
-  roomCount: number; // 생성한 채팅룸 수
 }
 
 // 인증 컨텍스트용 인터페이스
