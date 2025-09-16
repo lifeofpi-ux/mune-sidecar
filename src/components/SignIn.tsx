@@ -270,7 +270,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
       </div>
       
       {/* 크레딧 및 약관 */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center">
+      <div className="absolute bottom-4 l  text-center">
         <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
 
 

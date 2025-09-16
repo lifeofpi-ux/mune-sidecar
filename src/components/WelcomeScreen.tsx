@@ -16,7 +16,7 @@ const WelcomeScreen: React.FC = () => {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-100/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 l  -translate-y-1/2 w-96 h-96 bg-blue-100/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-lg">
@@ -71,7 +71,7 @@ const WelcomeScreen: React.FC = () => {
       </div>
 
       {/* 크레딧 및 약관 */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center">
+      <div className="absolute bottom-6 l  text-center">
         <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
           <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
