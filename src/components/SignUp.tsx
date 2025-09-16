@@ -252,7 +252,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
         <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
         <div className="text-xs text-gray-500 space-x-1">
-          <span>© 2025 MUNE</span>          <span>•</span>
+          <span>© 2025 MUNE</span>           
 
           
 

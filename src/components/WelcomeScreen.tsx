@@ -77,7 +77,7 @@ const WelcomeScreen: React.FC = () => {
         </p>
         <div className="text-xs text-gray-500 space-x-1">
           <span>© 2025 MUNE</span>          
-          <span>•</span>
+           
           <button
             onClick={() => setShowTerms(true)}
             className="hover:text-blue-600 hover:underline transition-colors"
