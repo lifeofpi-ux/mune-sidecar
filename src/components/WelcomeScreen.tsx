@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TermsOfService from './TermsOfService';
 import { 
   UserPlusIcon, 
   ArrowRightOnRectangleIcon
@@ -7,6 +8,7 @@ import {
 
 const WelcomeScreen: React.FC = () => {
   const navigate = useNavigate();
+  const [showTerms, setShowTerms] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -68,12 +70,29 @@ const WelcomeScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* 크레딧 */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-        <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-          🌿 제작 : <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+      {/* 크레딧 및 약관 */}
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center">
+        <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
+          <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
+        <div className="text-xs text-gray-500 space-x-1">
+          <span>© 2025 MUNE</span>          
+          <span>•</span>
+          <button
+            onClick={() => setShowTerms(true)}
+            className="hover:text-blue-600 hover:underline transition-colors"
+          >
+            이용약관 및 개인정보처리방침
+          </button>
+        </div>
       </div>
+
+      {/* 약관 모달 */}
+      <TermsOfService
+        isOpen={showTerms}
+        onClose={() => setShowTerms(false)}
+        showAgreeButton={false}
+      />
     </div>
   );
 };

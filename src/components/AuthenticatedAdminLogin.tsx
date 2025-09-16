@@ -387,7 +387,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-        🌿 제작 : <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+        <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
       </div>
       

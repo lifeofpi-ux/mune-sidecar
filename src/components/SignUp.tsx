@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import TermsOfService from './TermsOfService';
 import { 
   UserIcon, 
   EnvelopeIcon, 
@@ -23,11 +24,18 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const { signup } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!termsAccepted) {
+      setError('이용약관 및 개인정보처리방침에 동의해주세요.');
+      return;
+    }
     
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
@@ -189,6 +197,27 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
             </div>
           )}
 
+          {/* 약관 동의 체크박스 */}
+          <div className="flex items-start space-x-2">
+            <input
+              type="checkbox"
+              id="termsAccepted"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-0.5 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="termsAccepted" className="text-sm text-gray-700">
+              <button
+                type="button"
+                onClick={() => setShowTerms(true)}
+                className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+              >
+                이용약관 및 개인정보처리방침
+              </button>
+              에 동의합니다. (필수)
+            </label>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -215,12 +244,34 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
         </div>
       </div>
       
-      {/* 크레딧 */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-        <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-        🌿 제작 : <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+      {/* 크레딧 및 약관 */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center">
+        <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
+
+
+        <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
         </p>
+        <div className="text-xs text-gray-500 space-x-1">
+          <span>© 2025 MUNE</span>          <span>•</span>
+
+          
+
+          <button
+            onClick={() => setShowTerms(true)}
+            className="hover:text-blue-600 hover:underline transition-colors"
+          >
+            이용약관 및 개인정보처리방침
+          </button>
+        </div>
       </div>
+
+      {/* 약관 모달 */}
+      <TermsOfService
+        isOpen={showTerms}
+        onClose={() => setShowTerms(false)}
+        onAgree={() => setTermsAccepted(true)}
+        showAgreeButton={true}
+      />
     </div>
   );
 };
