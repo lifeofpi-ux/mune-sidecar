@@ -43,7 +43,7 @@ const WelcomeScreen: React.FC = () => {
         </div>
 
         {/* 메인 액션 카드 */}
-        <div className="max-w-sm mx-auto bg-white/50 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/50 p-8 mb-8">
+        <div className="max-w-xs mx-auto bg-white/50 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/50 p-8 mb-8">
           <div className="space-y-4">
             {/* 로그인 버튼 */}
             <button
