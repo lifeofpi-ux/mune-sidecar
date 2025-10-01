@@ -7,6 +7,7 @@ import PollModal from './PollModal';
 import PollCard from './PollCard';
 import RandomPicker from './RandomPicker';
 import TimerModal from './TimerModal';
+import { linkifyText } from '../utils/linkify';
 import { PlusIcon, GiftIcon, QrCodeIcon, ArrowLeftOnRectangleIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 interface ChatRoomProps {
@@ -242,7 +243,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                   <div className="flex justify-center">
                     <div className="bg-green-50 border border-green-200 px-3 py-2 rounded-full max-w-md">
                       <p className="text-sm text-green-700 text-center break-words">
-                        {msg.message}
+                        {linkifyText(msg.message)}
                       </p>
                       <p className="text-xs text-green-500 text-center mt-1">
                         {formatTime(msg.timestamp)}
@@ -321,7 +322,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                             : 'text-gray-900'
                         }`}
                       >
-                        {msg.message}
+                        {linkifyText(msg.message)}
                       </p>
                     </div>
                   </div>
