@@ -27,24 +27,17 @@ export const useChat = (roomId: string | null, user: User | null) => {
   const [loading, setLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
   const [onlineUsersList, setOnlineUsersList] = useState<string[]>([]);
-  const presenceState = useRef<'idle' | 'pending' | 'active'>('idle');
-  const cleanupPending = useRef(false);
-  const beforeUnloadHandlerRef = useRef<(() => void) | null>(null);
+  const isPresenceSetup = useRef(false);
 
   // 사용자 접속 상태 관리
   const setupUserPresence = async () => {
     const presenceId = generateId();
-    console.log(`[Presence #${presenceId}] setupUserPresence: START. State: ${presenceState.current}`);
+    console.log(`[Presence #${presenceId}] setupUserPresence: START. Room: ${roomId}, User: ${user?.name}, isPresenceSetup: ${isPresenceSetup.current}`);
 
-    if (!roomId || !user) return;
-
-    if (presenceState.current !== 'idle') {
-      console.log(`[Presence #${presenceId}] setupUserPresence: SKIPPED (state is ${presenceState.current})`);
-      return;
+    if (!roomId || !user || isPresenceSetup.current) {
+      console.log(`[Presence #${presenceId}] setupUserPresence: SKIPPED (already setup or missing info).`);
+      return null;
     }
-
-    presenceState.current = 'pending';
-    cleanupPending.current = false;
 
     try {
       const newRoomRef = doc(db, 'rooms', roomId);
@@ -58,8 +51,8 @@ export const useChat = (roomId: string | null, user: User | null) => {
       const existingPresence = await getDoc(userPresenceRef);
       if (existingPresence.exists()) {
         console.log(`[Presence #${presenceId}] User already online, skipping presence setup`);
-        presenceState.current = 'active';
-        return;
+        isPresenceSetup.current = true;
+        return null;
       }
 
       const batch = writeBatch(db);
@@ -73,62 +66,40 @@ export const useChat = (roomId: string | null, user: User | null) => {
 
       await batch.commit();
 
-      presenceState.current = 'active';
-      console.log(`[Presence #${presenceId}] setupUserPresence: SUCCESS. State: active`);
+      isPresenceSetup.current = true;
+      console.log(`[Presence #${presenceId}] setupUserPresence: SUCCESS.`);
 
-      // beforeunload 이벤트 핸들러 설정
       const handleBeforeUnload = () => {
         console.log(`[Presence #${presenceId}] handleBeforeUnload: Cleaning up presence for user ${user.name}`);
-        // 동기적으로 실행되어야 하므로 sendBeacon 등을 사용하는 것이 좋으나, 
-        // 여기서는 cleanupUserPresence를 호출하지 않고 직접 처리하거나 
-        // 브라우저 종료 시점이라 최선만 다함.
-        // Firestore 요청은 비동기라 beforeunload에서 보장되지 않음.
-        // 하지만 React 라이프사이클 내에서의 cleanup은 cleanupUserPresence가 담당.
+        deleteDoc(userPresenceRef);
+        updateDoc(roomRef, { onlineCount: increment(-1) });
       };
 
-      // 실제로는 beforeunload에서 비동기 cleanup이 어렵으므로, 
-      // 여기서는 리스너 등록만 하고 실제 cleanup은 cleanupUserPresence에서 수행
-      // 다만, 브라우저 탭 닫기 감지를 위해 리스너를 유지할 필요가 있다면 유지.
-      // 현재 로직에서는 window event listener가 cleanupUserPresence에서 제거됨.
-
-      // 기존 로직 유지: window listener 등록
       window.addEventListener('beforeunload', handleBeforeUnload);
-      beforeUnloadHandlerRef.current = handleBeforeUnload;
 
-      if (cleanupPending.current) {
-        console.log(`[Presence #${presenceId}] Cleanup was pending, executing cleanup now.`);
-        cleanupUserPresence();
-      }
+      // 클린업 함수 반환
+      return () => {
+        console.log(`[Presence #${presenceId}] CLEANUP: Removing 'beforeunload' listener.`);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
 
     } catch (error) {
       console.error(`[Presence #${presenceId}] Error setting up user presence:`, error);
-      presenceState.current = 'idle';
+      return null;
     }
   };
 
   // 사용자 접속 해제
   const cleanupUserPresence = async () => {
     const presenceId = generateId();
-    console.log(`[Presence #${presenceId}] cleanupUserPresence: START. State: ${presenceState.current}`);
+    console.log(`[Presence #${presenceId}] cleanupUserPresence: START. Room: ${roomId}, User: ${user?.name}, isPresenceSetup: ${isPresenceSetup.current}`);
 
-    if (!roomId || !user) return;
-
-    if (presenceState.current === 'idle') return;
-
-    if (presenceState.current === 'pending') {
-      console.log(`[Presence #${presenceId}] Setup is pending, marking for cleanup.`);
-      cleanupPending.current = true;
+    if (!roomId || !user || !isPresenceSetup.current) {
+      console.log(`[Presence #${presenceId}] cleanupUserPresence: SKIPPED (not setup or missing info).`);
       return;
     }
 
-    // State is active
     try {
-      // 리스너 제거
-      if (beforeUnloadHandlerRef.current) {
-        window.removeEventListener('beforeunload', beforeUnloadHandlerRef.current);
-        beforeUnloadHandlerRef.current = null;
-      }
-
       const newRoomRef = doc(db, 'rooms', roomId);
       const newRoomDoc = await getDoc(newRoomRef);
       const isNewRoom = newRoomDoc.exists();
@@ -147,13 +118,9 @@ export const useChat = (roomId: string | null, user: User | null) => {
         console.log(`[Presence #${presenceId}] cleanupUserPresence: SUCCESS.`);
       }
 
-      presenceState.current = 'idle';
-      cleanupPending.current = false;
+      isPresenceSetup.current = false;
     } catch (error) {
       console.error(`[Presence #${presenceId}] Error cleaning up user presence:`, error);
-      // 에러 발생 시에도 상태는 idle로 초기화하여 재시도 가능하게 함? 
-      // 아니면 상태 유지? 보통 cleanup 실패는 재시도하기 어려움.
-      presenceState.current = 'idle';
     }
   };
 
@@ -174,7 +141,10 @@ export const useChat = (roomId: string | null, user: User | null) => {
     const setupAll = async () => {
       console.log(`[Effect #${effectId}] setupAll: START.`);
       try {
-        await setupUserPresence();
+        const cleanupPresence = await setupUserPresence();
+        if (cleanupPresence) {
+          unsubscribes.push(cleanupPresence);
+        }
 
         if (isCancelled) {
           console.log(`[Effect #${effectId}] setupAll: CANCELLED during presence setup.`);
@@ -261,7 +231,7 @@ export const useChat = (roomId: string | null, user: User | null) => {
 
     const handleOnline = () => {
       console.log(`[Effect #${effectId}] Network status: online.`);
-      if (presenceState.current === 'idle') {
+      if (!isPresenceSetup.current) {
         setupUserPresence();
       }
     };
