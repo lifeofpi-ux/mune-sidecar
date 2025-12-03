@@ -3,9 +3,9 @@ import { useAuth } from '../hooks/useAuth';
 import { useUserRooms } from '../hooks/useUserRooms';
 import UserProfile from './UserProfile';
 import Modal from './Modal';
-import { 
+import {
   UserIcon,
-  ChatBubbleLeftRightIcon, 
+  ChatBubbleLeftRightIcon,
   LockClosedIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
@@ -17,15 +17,14 @@ interface AuthenticatedAdminLoginProps {
 const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoomCreated }) => {
   const { currentUser, authUser } = useAuth();
   const { rooms, loading: roomsLoading, createRoom, deleteRoom } = useUserRooms();
-  
+
   const [roomName, setRoomName] = useState('');
   const [adminName, setAdminName] = useState(authUser?.displayName || '');
-  const [adminPassword, setAdminPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'create' | 'manage'>('create');
   const [showProfile, setShowProfile] = useState(false);
-  
+
   // 모달 상태
   const [modal, setModal] = useState<{
     isOpen: boolean;
@@ -39,7 +38,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
     title: '',
     message: ''
   });
-  
+
   // 채팅룸 입장 관련 상태
   const [modalAdminName, setModalAdminName] = useState('');
   const [modalAdminNameError, setModalAdminNameError] = useState('');
@@ -51,7 +50,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!roomName.trim() || !adminName.trim() || !adminPassword.trim()) {
+    if (!roomName.trim() || !adminName.trim()) {
       setError('모든 필드를 입력해주세요.');
       return;
     }
@@ -66,12 +65,11 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
     setError('');
 
     try {
-      const roomId = await createRoom(roomName.trim(), adminName.trim(), adminPassword.trim());
+      const roomId = await createRoom(roomName.trim(), adminName.trim(), '');
       onRoomCreated(roomId, roomName.trim(), adminName.trim());
-      
+
       // 폼 초기화
       setRoomName('');
-      setAdminPassword('');
     } catch (error) {
       setError('강의룸 생성에 실패했습니다. 다시 시도해주세요.');
       console.error('Error creating room:', error);
@@ -82,7 +80,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
 
   const handleDeleteRoom = async (roomId: string, roomName: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     setModal({
       isOpen: true,
       type: 'confirm',
@@ -132,10 +130,10 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
         setModalAdminNameError('관리자 이름을 입력해주세요.');
         return;
       }
-      
+
       // 본인 소유 방이므로 바로 입장
       onRoomCreated(pendingAction.roomId, pendingAction.roomName, modalAdminName.trim());
-      
+
       // 상태 초기화
       setPendingAction(null);
       setModalAdminName('');
@@ -144,12 +142,12 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
   };
 
   const handleModalClose = () => {
-    setModal({ 
-      isOpen: false, 
+    setModal({
+      isOpen: false,
       type: 'confirm',
       title: '',
       message: '',
-      onConfirm: undefined 
+      onConfirm: undefined
     });
     setPendingAction(null);
     setModalAdminName('');
@@ -183,13 +181,15 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
 
       <div className="p-8 w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <img 
-              src="/logo.webp" 
-              alt="MUNE Logo" 
-              className="w-10 h-10 object-contain bg-white rounded-full"
-            />
-            <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="relative ">
+              <img
+                src="/logo.webp"
+                alt="MUNE Logo"
+                className="w-40 object-contain"
+              />
+              <div className="absolute -inset-2 bg-white/20 rounded-full blur-md -z-10"></div>
+            </div>
           </div>
           <p className="bg-black rounded-full px-2 py-1 w-fit mx-auto px-5 text-xs text-white mt-1">안녕하세요, {authUser.displayName}님!</p>
         </div>
@@ -228,9 +228,8 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
                   {Array.from({ length: 3 }, (_, i) => (
                     <div
                       key={i}
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        i < rooms.length ? 'bg-blue-500' : 'bg-gray-300'
-                      }`}
+                      className={`w-1.5 h-1.5 rounded-full ${i < rooms.length ? 'bg-blue-500' : 'bg-gray-300'
+                        }`}
                     />
                   ))}
                 </div>
@@ -245,88 +244,68 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="roomName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-                <div className="flex items-center space-x-1">
-                  <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                  <span>채팅룸 이름</span>
+              <div>
+                <label htmlFor="roomName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
+                  <div className="flex items-center space-x-1">
+                    <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                    <span>채팅룸 이름</span>
+                  </div>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="roomName"
+                    value={roomName}
+                    onChange={(e) => setRoomName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                    placeholder="예: 라이프오브파이 바이브 코딩 연수"
+                    disabled={loading}
+                  />
+                  <ChatBubbleLeftRightIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  id="roomName"
-                  value={roomName}
-                  onChange={(e) => setRoomName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-                  placeholder="예: 라이프오브파이 바이브 코딩 연수"
-                  disabled={loading}
-                />
-                <ChatBubbleLeftRightIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="adminName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-                <div className="flex items-center space-x-1">
-                  <UserIcon className="w-4 h-4" />
-                  <span>강의자 이름</span>
+              <div>
+                <label htmlFor="adminName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
+                  <div className="flex items-center space-x-1">
+                    <UserIcon className="w-4 h-4" />
+                    <span>강의자 이름</span>
+                  </div>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="adminName"
+                    value={adminName}
+                    onChange={(e) => setAdminName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                    placeholder="채팅에서 표시될 이름"
+                    disabled={loading}
+                    maxLength={20}
+                  />
+                  <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  id="adminName"
-                  value={adminName}
-                  onChange={(e) => setAdminName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-                  placeholder="채팅에서 표시될 이름"
-                  disabled={loading}
-                  maxLength={20}
-                />
-                <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="adminPassword" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-                <div className="flex items-center space-x-1">
-                  <LockClosedIcon className="w-4 h-4" />
-                  <span>채팅룸 비밀번호</span>
+
+
+              {error && (
+                <div className="bg-red-100/80 backdrop-blur-sm border border-red-300/50 rounded-md p-3">
+                  <p className="text-sm text-red-700 font-medium">{error}</p>
                 </div>
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  id="adminPassword"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-                  placeholder="참여자들이 입장시 입력할 비밀번호"
-                  disabled={loading}
-                  autoComplete="new-password"
-                />
-                <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              </div>
-            </div>
+              )}
 
-            {error && (
-              <div className="bg-red-100/80 backdrop-blur-sm border border-red-300/50 rounded-md p-3">
-                <p className="text-sm text-red-700 font-medium">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading || rooms.length >= 3}
-              className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <PlusIcon className="w-5 h-5" />
-                <span>{loading ? '생성 중...' : rooms.length >= 3 ? '최대 개수 도달' : '채팅룸 생성'}</span>
-              </div>
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading || rooms.length >= 3}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  <PlusIcon className="w-5 h-5" />
+                  <span>{loading ? '생성 중...' : rooms.length >= 3 ? '최대 개수 도달' : '채팅룸 생성'}</span>
+                </div>
+              </button>
+            </form>
           </div>
         )}
 
@@ -345,8 +324,8 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
             ) : (
               <div className="space-y-3 max-h-80 overflow-y-auto">
                 {rooms.map((room) => (
-                  <div 
-                    key={room.id} 
+                  <div
+                    key={room.id}
                     className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-200/50 cursor-pointer hover:bg-white/80 hover:border-blue-300/70 transition-all duration-200 shadow-sm hover:shadow-md"
                     onClick={() => handleRoomClick(room.id, room.name)}
                   >
@@ -359,11 +338,10 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
                           {formatDate(room.createdAt)}
                         </p>
                         <div className="flex items-center mt-1">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                            room.isActive 
-                              ? 'bg-green-100/80 text-green-800 border border-green-200/50' 
-                              : 'bg-gray-100/80 text-gray-700 border border-gray-200/50'
-                          }`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${room.isActive
+                            ? 'bg-green-100/80 text-green-800 border border-green-200/50'
+                            : 'bg-gray-100/80 text-gray-700 border border-gray-200/50'
+                            }`}>
                             {room.isActive ? '활성' : '비활성'}
                           </span>
                         </div>
@@ -383,19 +361,19 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
           </div>
         )}
       </div>
-      
+
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-        <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+          <span className="font-medium text-blue-700">©VIVAMUNE</span>
         </p>
       </div>
-      
+
       {/* 프로필 모달 */}
       {showProfile && (
         <UserProfile onClose={() => setShowProfile(false)} />
       )}
-      
+
       {/* 기존 모달 (확인/알림) */}
       {modal.type !== 'password' && (
         <Modal
@@ -415,7 +393,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">{modal.title}</h3>
               <p className="text-gray-600 mb-4">{modal.message}</p>
-              
+
               <form onSubmit={(e) => { e.preventDefault(); handlePasswordConfirm(); }}>
                 <div className="space-y-4">
                   <div>
@@ -438,18 +416,18 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
                       <p className="text-sm text-red-600 mt-1">{modalAdminNameError}</p>
                     )}
                   </div>
-                
+
                   <div className="flex space-x-3">
                     <button
                       type="button"
                       onClick={handleModalClose}
-                      className="flex-1 modern-btn modern-btn-secondary p-2"
+                      className="flex-1 bg-gradient-to-r from-gray-500 to-slate-600 hover:from-gray-600 hover:to-slate-700 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
                     >
                       취소
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 modern-btn modern-btn-primary p-2"  
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={!modalAdminName.trim()}
                     >
                       입장

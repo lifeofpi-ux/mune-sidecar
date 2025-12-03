@@ -26,17 +26,17 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
 
       try {
         const room = await getRoomById(roomId);
-        
+
         if (!room) {
           setError('존재하지 않거나 비활성화된 강의룸입니다.');
           return;
         }
-        
+
         if (!room.isActive) {
           setError('존재하지 않거나 비활성화된 강의룸입니다.');
           return;
         }
-        
+
         setRoomInfo({ id: room.id, name: room.name });
       } catch (error) {
         console.error('Error loading room info:', error);
@@ -73,7 +73,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
 
       // 세션 ID 생성
       const sessionId = generateSessionId();
-      
+
       await incrementOnlineUsers(roomInfo.id, userName.trim(), sessionId);
       onUserJoined(userName.trim(), roomInfo.id, roomInfo.name, sessionId);
     } catch (error) {
@@ -91,11 +91,11 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
           <h1 className="text-2xl font-bold text-red-600 mb-4">오류</h1>
           <p className="text-gray-600">유효하지 않은 강의룸 링크입니다.</p>
         </div>
-        
+
         {/* 크레딧 */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <p className="text-sm text-gray-500 text-center">
-          <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+            <span className="font-medium text-blue-700">©VIVAMUNE</span>
           </p>
         </div>
       </div>
@@ -103,19 +103,22 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 relative">
       <div className="modern-card p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-0.5 mb-2">
-            <img 
-              src="/logo.webp" 
-              alt="MUNE Logo" 
-              className="w-12 h-12 object-contain bg-white rounded-full"
-            />
-            <h1 className="text-3xl font-bold text-gray-900">강의룸 입장</h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="relative ">
+              <img
+                src="/logo.webp"
+                alt="MUNE Logo"
+                className="w-40 object-contain"
+              />
+              <div className="absolute -inset-2 bg-white/20 rounded-full blur-md -z-10"></div>
+            </div>
           </div>
+          <h1 className="text-2xl font-bold text-blue-900">강의룸 입장</h1>
           {roomInfo && (
-            <p className="text-gray-600">
+            <p className="text-blue-600 mt-2">
               <span className="font-semibold">{roomInfo.name}</span>에 참여하기
             </p>
           )}
@@ -123,7 +126,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="userName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
               <div className="flex items-center space-x-1">
                 <UserIcon className="w-4 h-4" />
                 <span>참여자 이름</span>
@@ -135,7 +138,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
                 id="userName"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 modern-input"
+                className="w-full pl-10 pr-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
                 placeholder="채팅에서 사용할 이름을 입력하세요"
                 disabled={loading || !roomInfo}
                 maxLength={20}
@@ -154,7 +157,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
           <button
             type="submit"
             disabled={loading || !roomInfo || !userName.trim()}
-            className="w-full modern-btn modern-btn-success py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <div className="flex items-center justify-center space-x-2">
               <ArrowRightOnRectangleIcon className="w-5 h-5" />
@@ -169,11 +172,11 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
           </p>
         </div>
       </div>
-      
+
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-        <p className="text-sm text-gray-500 text-center">
-        <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+        <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
+          <span className="font-medium text-blue-700">©VIVAMUNE</span>
         </p>
       </div>
     </div>

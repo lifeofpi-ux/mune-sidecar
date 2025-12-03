@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import TermsOfService from './TermsOfService';
-import { 
-  UserIcon, 
-  EnvelopeIcon, 
-  LockClosedIcon, 
-  EyeIcon, 
+import {
+  UserIcon,
+  EnvelopeIcon,
+  LockClosedIcon,
+  EyeIcon,
   EyeSlashIcon,
   UserPlusIcon
 } from '@heroicons/react/24/outline';
@@ -31,12 +31,12 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!termsAccepted) {
       setError('이용약관 및 개인정보처리방침에 동의해주세요.');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
       return;
@@ -55,7 +55,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
       onSuccess();
     } catch (error: any) {
       console.error('Sign up error:', error);
-      
+
       switch (error.code) {
         case 'auth/email-already-in-use':
           setError('이미 사용 중인 이메일입니다.');
@@ -79,13 +79,15 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
       <div className="p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <img 
-              src="/logo.webp" 
-              alt="MUNE Logo" 
-              className="w-10 h-10 object-contain bg-white rounded-full"
-            />
-            <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="relative ">
+              <img
+                src="/logo.webp"
+                alt="MUNE Logo"
+                className="w-40 object-contain"
+              />
+              <div className="absolute -inset-2 bg-white/20 rounded-full blur-md -z-10"></div>
+            </div>
           </div>
           <p className="text-blue-700 font-medium">회원가입</p>
         </div>
@@ -221,7 +223,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <div className="flex items-center justify-center space-x-2">
               <UserPlusIcon className="w-5 h-5" />
@@ -243,18 +245,18 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToLogin }) => {
           </p>
         </div>
       </div>
-      
+
       {/* 크레딧 및 약관 */}
       <div className="absolute bottom-4 l  text-center">
         <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
 
 
-        <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+          <span className="font-medium text-blue-700">©VIVAMUNE</span>
         </p>
         <div className="text-xs text-gray-500 space-x-1">
-          <span>© 2025 MUNE</span>           
+          <span>© 2025 MUNE</span>
 
-          
+
 
           <button
             onClick={() => setShowTerms(true)}

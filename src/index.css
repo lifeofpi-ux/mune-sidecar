@@ -274,7 +274,7 @@ body {
 }
 
 .tab-button.active {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1801e6 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
 }
@@ -304,4 +304,4 @@ body {
 
 .tab-button.active:hover::before {
   opacity: 1;
-} 
+}

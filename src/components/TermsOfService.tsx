@@ -7,11 +7,11 @@ interface TermsOfServiceProps {
   showAgreeButton?: boolean;
 }
 
-const TermsOfService: React.FC<TermsOfServiceProps> = ({ 
-  isOpen, 
-  onClose, 
-  onAgree, 
-  showAgreeButton = false 
+const TermsOfService: React.FC<TermsOfServiceProps> = ({
+  isOpen,
+  onClose,
+  onAgree,
+  showAgreeButton = false
 }) => {
   if (!isOpen) return null;
 
@@ -29,7 +29,7 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
@@ -43,17 +43,17 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({
             ×
           </button>
         </div>
-        
+
         <div className="p-6 space-y-8 text-sm leading-relaxed">
           {/* 이용약관 */}
           <section>
             <h3 className="text-xl font-bold text-gray-900 mb-4">제1조 이용약관</h3>
-            
+
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold text-gray-800 mb-2">1. 서비스 개요</h4>
                 <p className="text-gray-600 pl-4">
-                  MUNE는 실시간 채팅 및 커뮤니케이션 플랫폼을 제공하는 서비스입니다. 
+                  MUNE는 실시간 채팅 및 커뮤니케이션 플랫폼을 제공하는 서비스입니다.
                   사용자는 채팅방을 생성하거나 참여하여 다른 사용자들과 소통할 수 있습니다.
                 </p>
               </div>
@@ -90,7 +90,7 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({
               <div>
                 <h4 className="font-semibold text-gray-800 mb-2">5. 서비스 이용 제한</h4>
                 <p className="text-gray-600 pl-4">
-                  약관 위반, 불법 행위, 서비스 운영 방해 등의 경우 사전 통지 없이 
+                  약관 위반, 불법 행위, 서비스 운영 방해 등의 경우 사전 통지 없이
                   서비스 이용을 제한하거나 계정을 정지할 수 있습니다.
                 </p>
               </div>
@@ -100,7 +100,7 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({
           {/* 개인정보처리방침 */}
           <section>
             <h3 className="text-xl font-bold text-gray-900 mb-4">제2조 개인정보처리방침</h3>
-            
+
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold text-gray-800 mb-2">1. 수집하는 개인정보 항목</h4>
@@ -132,7 +132,7 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({
               <div>
                 <h4 className="font-semibold text-gray-800 mb-2">4. 개인정보 제3자 제공</h4>
                 <p className="text-gray-600 pl-4">
-                  수집된 개인정보는 원칙적으로 제3자에게 제공하지 않습니다. 
+                  수집된 개인정보는 원칙적으로 제3자에게 제공하지 않습니다.
                   다만, 법령의 규정에 의거하거나 수사기관의 요구가 있는 경우 예외로 합니다.
                 </p>
               </div>
@@ -170,12 +170,12 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({
           {/* 기타 조항 */}
           <section>
             <h3 className="text-xl font-bold text-gray-900 mb-4">제3조 기타</h3>
-            
+
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold text-gray-800 mb-2">1. 약관의 변경</h4>
                 <p className="text-gray-600 pl-4">
-                  본 약관은 관련 법령의 변경이나 서비스 정책의 변경에 따라 수정될 수 있으며, 
+                  본 약관은 관련 법령의 변경이나 서비스 정책의 변경에 따라 수정될 수 있으며,
                   변경 시 서비스 내 공지사항을 통해 안내합니다.
                 </p>
               </div>
@@ -198,7 +198,7 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({
 
           <div className="border-t border-gray-200 pt-6">
             <p className="text-center text-gray-500 text-xs">
-              © 2025 MUNE. 제작: 라이프오브파이 Lab
+              © 2025 MUNE. 제작: ©VIVAMUNE
             </p>
           </div>
         </div>

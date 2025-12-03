@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserRooms } from '../hooks/useUserRooms';
-import { 
-  UserIcon, 
-  ArrowRightOnRectangleIcon, 
-  TrashIcon, 
+import {
+  UserIcon,
+  ArrowRightOnRectangleIcon,
+  TrashIcon,
   PencilIcon,
   ChatBubbleLeftRightIcon,
   CalendarDaysIcon,
@@ -209,12 +209,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
                 <button
                   onClick={handleLogout}
                   disabled={loading}
-                  className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-gray-500 to-slate-600 hover:from-gray-600 hover:to-slate-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   <ArrowRightOnRectangleIcon className="w-5 h-5" />
                   <span>{loading ? '로그아웃 중...' : '로그아웃'}</span>
                 </button>
-                
+
                 {/* 회원 탈퇴 텍스트 링크 */}
                 <div className="mt-3 text-left">
                   <button
@@ -230,7 +230,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
           </div>
         </div>
       </div>
-      
+
       {/* 회원 탈퇴 확인 모달 */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
@@ -239,11 +239,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
               <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
                 <TrashIcon className="w-6 h-6 text-red-600" />
               </div>
-              
+
               <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
                 회원 탈퇴
               </h3>
-              
+
               <div className="text-center text-gray-600 mb-6">
                 <p className="mb-3">정말로 회원 탈퇴하시겠습니까?</p>
                 <div className="bg-red-50 p-3 rounded-lg text-sm text-red-700">
@@ -255,7 +255,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
                   </ul>
                 </div>
               </div>
-              
+
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
@@ -267,7 +267,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose }) => {
                 <button
                   onClick={handleDeleteAccount}
                   disabled={loading}
-                  className="flex-1 py-3 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 px-4 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {loading ? '탈퇴 중...' : '탈퇴하기'}
                 </button>

@@ -25,7 +25,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
     title: '',
     message: ''
   });
-  
+
   // 비밀번호 입력 관련 상태
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -36,7 +36,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
     roomId: string;
     roomName: string;
   } | null>(null);
-  
+
   // 슈퍼 관리자 관련 상태
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [superAdminPassword, setSuperAdminPassword] = useState('');
@@ -50,10 +50,10 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
 
   const { createRoom, verifyAdminPassword } = useChatRoom();
   const { rooms, loading: roomsLoading, deleteRoom } = useRoomList();
-  
+
   // 슈퍼 관리자 비밀번호 (실제 환경에서는 환경변수나 보안 저장소 사용 권장)
   const SUPER_ADMIN_PASSWORD = 'mune2025super';
-  
+
   // 초기 관리자 인증 비밀번호
   const ADMIN_AUTH_PASSWORD = 'tripod25!';
 
@@ -107,7 +107,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
 
   const handleDeleteRoom = async (roomId: string, roomName: string, e: React.MouseEvent) => {
     e.stopPropagation(); // 카드 클릭 이벤트 방지
-    
+
     // 슈퍼 관리자인 경우 바로 삭제
     if (isSuperAdmin) {
       setModal({
@@ -137,7 +137,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       });
       return;
     }
-    
+
     // 일반 관리자인 경우 비밀번호 입력 모달 표시
     setPendingAction({ type: 'delete', roomId, roomName });
     setPasswordInput('');
@@ -166,7 +166,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       setPasswordError('');
       return;
     }
-    
+
     // 일반 관리자 입장 시 비밀번호 및 이름 입력 모달 표시
     setPendingAction({ type: 'enter', roomId, roomName });
     setPasswordInput('');
@@ -197,7 +197,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       if (isSuperAdmin && pendingAction.type === 'enter') {
         // 슈퍼 관리자로 해당 강의룸에 입장
         onRoomCreated(pendingAction.roomId, pendingAction.roomName, modalAdminName.trim());
-        
+
         // 상태 초기화
         setPendingAction(null);
         setPasswordInput('');
@@ -215,7 +215,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
 
       // 비밀번호 검증
       const isValidPassword = await verifyAdminPassword(pendingAction.roomId, passwordInput.trim());
-      
+
       if (!isValidPassword) {
         setPasswordError('비밀번호가 올바르지 않습니다.');
         return;
@@ -251,7 +251,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       setPasswordError('');
       setModalAdminName('');
       setModalAdminNameError('');
-      
+
     } catch (error) {
       setPasswordError('비밀번호 확인 중 오류가 발생했습니다.');
       console.error('Error verifying password:', error);
@@ -259,12 +259,12 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   };
 
   const handleModalClose = () => {
-    setModal({ 
-      isOpen: false, 
+    setModal({
+      isOpen: false,
       type: 'confirm',
       title: '',
       message: '',
-      onConfirm: undefined 
+      onConfirm: undefined
     });
     setPendingAction(null);
     setPasswordInput('');
@@ -311,9 +311,9 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         <div className="p-8 w-full max-w-md">
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-0.5 mb-2">
-              <img 
-                src="/logo.webp" 
-                alt="MUNE Logo" 
+              <img
+                src="/logo.webp"
+                alt="MUNE Logo"
                 className="w-12 h-12 object-contain bg-white rounded-full"
               />
               <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
@@ -377,11 +377,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             </div>
           </div>
         </div>
-        
+
         {/* 크레딧 */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-          <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+            <span className="font-medium text-blue-700">©VIVAMUNE</span>
           </p>
         </div>
       </div>
@@ -393,11 +393,10 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       {/* 설정 버튼 */}
       <button
         onClick={handleSettingsClick}
-        className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
-          isSuperAdmin 
-            ? 'bg-red-500/90 hover:bg-red-600 text-white shadow-lg backdrop-blur-sm' 
-            : 'bg-white/80 hover:bg-white/90 text-blue-700 shadow-md backdrop-blur-sm border border-blue-200/50'
-        }`}
+        className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${isSuperAdmin
+          ? 'bg-red-500/90 hover:bg-red-600 text-white shadow-lg backdrop-blur-sm'
+          : 'bg-white/80 hover:bg-white/90 text-blue-700 shadow-md backdrop-blur-sm border border-blue-200/50'
+          }`}
         title={isSuperAdmin ? '슈퍼 관리자 로그아웃' : '슈퍼 관리자 로그인'}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -409,9 +408,9 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
       <div className="p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-0.5 mb-2">
-            <img 
-              src="/logo.webp" 
-              alt="MUNE Logo" 
+            <img
+              src="/logo.webp"
+              alt="MUNE Logo"
               className="w-12 h-12 object-contain bg-white rounded-full"
             />
             <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
@@ -447,58 +446,58 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         {/* 강의룸 생성 탭 */}
         {activeTab === 'create' && (
           <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="roomName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              강의룸 이름
-            </label>
-            <input
-              type="text"
-              id="roomName"
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="예: 2025 트라이팟 컨퍼런스"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="adminName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              강의자 이름
-            </label>
-            <input
-              type="text"
-              id="adminName"
-              value={adminName}
-              onChange={(e) => setAdminName(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="예: 김강의"
-              disabled={loading}
-              maxLength={20}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="adminPassword" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
-              관리자 비밀번호
-            </label>
-            <input
-              type="password"
-              id="adminPassword"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
-              placeholder="관리자 비밀번호를 입력하세요"
-              disabled={loading}
-              autoComplete="current-password"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-100/80 backdrop-blur-sm border border-red-300/50 rounded-md p-3">
-              <p className="text-sm text-red-700 font-medium">{error}</p>
+            <div>
+              <label htmlFor="roomName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
+                강의룸 이름
+              </label>
+              <input
+                type="text"
+                id="roomName"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="예: 2025 트라이팟 컨퍼런스"
+                disabled={loading}
+              />
             </div>
-          )}
+
+            <div>
+              <label htmlFor="adminName" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
+                강의자 이름
+              </label>
+              <input
+                type="text"
+                id="adminName"
+                value={adminName}
+                onChange={(e) => setAdminName(e.target.value)}
+                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="예: 김강의"
+                disabled={loading}
+                maxLength={20}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="adminPassword" className="block text-sm font-medium text-blue-800 mb-2 drop-shadow-sm">
+                관리자 비밀번호
+              </label>
+              <input
+                type="password"
+                id="adminPassword"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className="w-full px-4 py-2 modern-input bg-white/80 backdrop-blur-sm border-blue-200/50 focus:border-blue-400 focus:ring-blue-300/50"
+                placeholder="관리자 비밀번호를 입력하세요"
+                disabled={loading}
+                autoComplete="current-password"
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-100/80 backdrop-blur-sm border border-red-300/50 rounded-md p-3">
+                <p className="text-sm text-red-700 font-medium">{error}</p>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -513,7 +512,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         {/* 기존 강의룸 관리 탭 */}
         {activeTab === 'manage' && (
           <div>
-            
+
             {roomsLoading ? (
               <div className="text-center py-8">
                 <div className="text-blue-700 font-medium">로딩 중...</div>
@@ -526,8 +525,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             ) : (
               <div className="space-y-3 max-h-80 overflow-y-auto">
                 {rooms.map((room) => (
-                  <div 
-                    key={room.id} 
+                  <div
+                    key={room.id}
                     className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-200/50 cursor-pointer hover:bg-white/80 hover:border-blue-300/70 transition-all duration-200 shadow-sm hover:shadow-md"
                     onClick={() => handleRoomClick(room.id, room.name)}
                   >
@@ -540,11 +539,10 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                           {formatDate(room.createdAt)}
                         </p>
                         <div className="flex items-center mt-1">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                            room.isActive 
-                              ? 'bg-green-100/80 text-green-800 border border-green-200/50' 
-                              : 'bg-gray-100/80 text-gray-700 border border-gray-200/50'
-                          }`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${room.isActive
+                            ? 'bg-green-100/80 text-green-800 border border-green-200/50'
+                            : 'bg-gray-100/80 text-gray-700 border border-gray-200/50'
+                            }`}>
                             {room.isActive ? '활성' : '비활성'}
                           </span>
                         </div>
@@ -564,14 +562,14 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           </div>
         )}
       </div>
-      
+
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-        <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+          <span className="font-medium text-blue-700">©VIVAMUNE</span>
         </p>
       </div>
-      
+
       {/* 기존 모달 (확인/알림) */}
       {modal.type !== 'password' && (
         <Modal
@@ -583,7 +581,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
           type={modal.type}
         />
       )}
-      
+
       {/* 슈퍼 관리자 로그인 모달 */}
       {showSuperAdminModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -591,7 +589,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">슈퍼 관리자 로그인</h3>
               <p className="text-gray-600 mb-4">슈퍼 관리자 비밀번호를 입력하세요.</p>
-              
+
               <form onSubmit={(e) => { e.preventDefault(); handleSuperAdminLogin(); }}>
                 <div className="space-y-4">
                   <div>
@@ -619,7 +617,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                       <p className="text-sm text-red-600 mt-1">{superAdminError}</p>
                     )}
                   </div>
-                
+
                   <div className="flex space-x-3">
                     <button
                       type="button"
@@ -634,7 +632,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 modern-btn modern-btn-primary p-2"  
+                      className="flex-1 modern-btn modern-btn-primary p-2"
                       disabled={!superAdminPassword.trim()}
                     >
                       로그인
@@ -654,7 +652,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">{modal.title}</h3>
               <p className="text-gray-600 mb-4">{modal.message}</p>
-              
+
               <form onSubmit={(e) => { e.preventDefault(); handlePasswordConfirm(); }}>
                 <div className="space-y-4">
                   {pendingAction?.type === 'enter' && (
@@ -679,7 +677,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                       )}
                     </div>
                   )}
-                  
+
                   {/* 슈퍼 관리자가 아닌 경우에만 비밀번호 입력 필드 표시 */}
                   {!(isSuperAdmin && pendingAction?.type === 'enter') && (
                     <div>
@@ -708,7 +706,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                       )}
                     </div>
                   )}
-                
+
                   <div className="flex space-x-3">
                     <button
                       type="button"
@@ -719,9 +717,9 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 modern-btn modern-btn-primary p-2"  
+                      className="flex-1 modern-btn modern-btn-primary p-2"
                       disabled={
-                        (isSuperAdmin && pendingAction?.type === 'enter') 
+                        (isSuperAdmin && pendingAction?.type === 'enter')
                           ? !modalAdminName.trim()
                           : !passwordInput.trim()
                       }

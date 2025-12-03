@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import TermsOfService from './TermsOfService';
-import { 
-  EnvelopeIcon, 
-  LockClosedIcon, 
-  EyeIcon, 
+import {
+  EnvelopeIcon,
+  LockClosedIcon,
+  EyeIcon,
   EyeSlashIcon,
   ArrowRightOnRectangleIcon,
   KeyIcon
@@ -38,7 +38,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
       onSuccess();
     } catch (error: any) {
       console.error('Sign in error:', error);
-      
+
       switch (error.code) {
         case 'auth/user-not-found':
           setError('존재하지 않는 이메일입니다.');
@@ -62,7 +62,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!resetEmail) {
       setError('이메일을 입력해주세요.');
       return;
@@ -74,7 +74,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
       setError('');
     } catch (error: any) {
       console.error('Password reset error:', error);
-      
+
       switch (error.code) {
         case 'auth/user-not-found':
           setError('존재하지 않는 이메일입니다.');
@@ -94,13 +94,15 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
         <div className="p-8 w-full max-w-md">
           <div className="text-center mb-10">
-            <div className="flex items-center justify-center gap-2 mb-5">
-              <img 
-                src="/logo.webp" 
-                alt="MUNE Logo" 
-                className="w-10 h-10 object-contain bg-white rounded-full"
-              />
-              <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="relative ">
+                <img
+                  src="/logo.webp"
+                  alt="MUNE Logo"
+                  className="w-40 object-contain"
+                />
+                <div className="absolute -inset-2 bg-white/20 rounded-full blur-md -z-10"></div>
+              </div>
             </div>
           </div>
 
@@ -141,18 +143,18 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
             <div className="space-y-3">
               <button
                 type="submit"
-                className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-center space-x-2">
                   <KeyIcon className="w-5 h-5" />
                   <span>비밀번호 재설정 이메일 전송</span>
                 </div>
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => setShowResetPassword(false)}
-                className="w-full modern-btn modern-btn-secondary py-2 bg-gray-500 hover:bg-gray-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full bg-gradient-to-r from-gray-500 to-slate-600 hover:from-gray-600 hover:to-slate-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 로그인으로 돌아가기
               </button>
@@ -167,13 +169,15 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
       <div className="p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <img 
-              src="/logo.webp" 
-              alt="MUNE Logo" 
-              className="w-10 h-10 object-contain bg-white rounded-full"
-            />
-            <h1 className="text-3xl font-bold text-blue-900 drop-shadow-sm">MUNE</h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="relative ">
+              <img
+                src="/logo.webp"
+                alt="MUNE Logo"
+                className="w-40 object-contain"
+              />
+              <div className="absolute -inset-2 bg-white/20 rounded-full blur-md -z-10"></div>
+            </div>
           </div>
           <p className="text-blue-500/80 text-xs font-bold">강의자를 위한 실시간 소통 플랫폼 "뮨"</p>
         </div>
@@ -234,17 +238,17 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
             </div>
           )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full modern-btn modern-btn-primary py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                <span>{loading ? '로그인 중...' : '로그인'}</span>
-              </div>
-            </button>
-          </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <ArrowRightOnRectangleIcon className="w-5 h-5" />
+              <span>{loading ? '로그인 중...' : '로그인'}</span>
+            </div>
+          </button>
+        </form>
 
 
         <div className="mt-4 text-center">
@@ -268,18 +272,18 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
           </p>
         </div>
       </div>
-      
+
       {/* 크레딧 및 약관 */}
       <div className="absolute bottom-4 l  text-center">
         <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
 
 
-          <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+          <span className="font-medium text-blue-700">©VIVAMUNE</span>
         </p>
         <div className="text-xs text-gray-500 space-x-1">
-          <span>© 2025 MUNE</span>           
+          <span>© 2025 MUNE</span>
 
-          
+
 
           <button
             onClick={() => setShowTerms(true)}

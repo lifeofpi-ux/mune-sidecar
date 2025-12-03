@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TermsOfService from './TermsOfService';
-import { 
-  UserPlusIcon, 
+import {
+  UserPlusIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
@@ -24,21 +24,18 @@ const WelcomeScreen: React.FC = () => {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative ">
-              <img 
-                src="/logo.webp" 
-                alt="MUNE Logo" 
-                className="w-12 h-12 object-contain bg-white rounded-full"
+              <img
+                src="/logo.webp"
+                alt="MUNE Logo"
+                className="w-40 object-contain"
               />
               <div className="absolute -inset-2 bg-white/20 rounded-full blur-md -z-10"></div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold text-blue-900 drop-shadow-sm tracking-tight">MUNE</h1>
-            </div>
           </div>
-          
-          <p className="text-xl text-blue-800 font-medium mb-2">실시간 채팅 & 소통 플랫폼</p>
+
+          <p className="text-xl text-blue-800 font-[800] mb-1 tracking-tight">실시간 채팅 & 소통 플랫폼</p>
           <p className="text-gray-600 text-xs max-w-md mx-auto leading-relaxed">
-            강의, 프레젠테이션, 이벤트에서 참여자분들과 실시간으로 소통하세요. 
+            온라인 참여자분들과 실시간으로 소통하세요.
           </p>
         </div>
 
@@ -73,11 +70,12 @@ const WelcomeScreen: React.FC = () => {
       {/* 크레딧 및 약관 */}
       <div className="absolute bottom-6 l  text-center">
         <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
-          <span className="font-medium text-blue-700">라이프오브파이 Lab</span>
+          <span className="font-bold text-blue-700">
+            ©VIVAMUNE</span>
         </p>
         <div className="text-xs text-gray-500 space-x-1">
-          <span>© 2025 MUNE</span>          
-           
+          <span>© 2025 MUNE</span>
+
           <button
             onClick={() => setShowTerms(true)}
             className="hover:text-blue-600 hover:underline transition-colors"
