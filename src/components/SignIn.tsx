@@ -283,7 +283,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
         <p className="text-sm text-blue-600/80 drop-shadow-sm mb-3">
 
 
-          <span className="font-medium text-blue-700">©VIVAMUNE</span>
+          <span className="font-bold text-blue-700">©VIVAMUNE</span>
         </p>
         <div className="text-xs text-gray-500 space-x-1">
           <span>© 2025 MUNE</span>

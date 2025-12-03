@@ -94,7 +94,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
         {/* 크레딧 */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <p className="text-sm text-gray-500 text-center">
-            <span className="font-medium text-blue-700">©VIVAMUNE</span>
+            <span className="font-bold text-blue-700">©VIVAMUNE</span>
           </p>
         </div>
       </div>
@@ -175,7 +175,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
       {/* 크레딧 */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <p className="text-sm text-blue-600/80 text-center drop-shadow-sm">
-          <span className="font-medium text-blue-700">©VIVAMUNE</span>
+          <span className="font-bold text-blue-700">©VIVAMUNE</span>
         </p>
       </div>
     </div>
