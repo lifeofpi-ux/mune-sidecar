@@ -6,7 +6,6 @@ import Modal from './Modal';
 import {
   UserIcon,
   ChatBubbleLeftRightIcon,
-  LockClosedIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
 
@@ -179,7 +178,7 @@ const AuthenticatedAdminLogin: React.FC<AuthenticatedAdminLoginProps> = ({ onRoo
         <UserIcon className="w-5 h-5" />
       </button>
 
-      <div className="p-8 w-full max-w-md">
+      <div className="p-8 w-full max-w-[400px]">
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative ">

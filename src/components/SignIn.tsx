@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import TermsOfService from './TermsOfService';
 import {
@@ -38,23 +39,27 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
       onSuccess();
     } catch (error: any) {
       console.error('Sign in error:', error);
+      let errorMsg = '';
 
       switch (error.code) {
         case 'auth/user-not-found':
-          setError('존재하지 않는 이메일입니다.');
+        case 'auth/invalid-credential':
+          errorMsg = '이메일 또는 비밀번호가 올바르지 않습니다.';
           break;
         case 'auth/wrong-password':
-          setError('잘못된 비밀번호입니다.');
+          errorMsg = '잘못된 비밀번호입니다.';
           break;
         case 'auth/invalid-email':
-          setError('올바른 이메일 주소를 입력해주세요.');
+          errorMsg = '올바른 이메일 주소를 입력해주세요.';
           break;
         case 'auth/too-many-requests':
-          setError('로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.');
+          errorMsg = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.';
           break;
         default:
-          setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+          errorMsg = '로그인 중 오류가 발생했습니다. 다시 시도해주세요.';
       }
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -92,7 +97,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
   if (showResetPassword) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
-        <div className="p-8 w-full max-w-md">
+        <div className="p-8 w-full max-w-[400px]">
           <div className="text-center mb-10">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="relative ">
@@ -167,7 +172,7 @@ const SignIn: React.FC<SignInProps> = ({ onSuccess, onSwitchToSignUp }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
-      <div className="p-8 w-full max-w-md">
+      <div className="p-8 w-full max-w-[400px]">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative ">

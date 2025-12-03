@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../hooks/useChat';
-import { useChatRoom } from '../hooks/useChat';
+
 import { User, Poll } from '../types';
 import QRCodeGenerator from './QRCodeGenerator';
 import PollModal from './PollModal';
@@ -24,19 +24,19 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   const [showRandomPicker, setShowRandomPicker] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  const { 
-    messages, 
-    loading, 
-    sendMessage, 
-    voteOnPoll, 
-    closePoll, 
-    addWordCloudResponse, 
+
+  const {
+    messages,
+    loading,
+    sendMessage,
+    voteOnPoll,
+    closePoll,
+    addWordCloudResponse,
     onlineUsers,
     onlineUsersList
   } = useChat(user.roomId, user);
 
-  const { decrementOnlineUsers } = useChatRoom();
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -47,13 +47,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   }, [messages]);
 
   const handleLeave = async () => {
-    try {
-      await decrementOnlineUsers(user.roomId, user.name, user.sessionId);
-      onLeave();
-    } catch (error) {
-      console.error('Error leaving room:', error);
-      onLeave(); // 에러가 발생해도 나가기 실행
-    }
+    onLeave();
   };
 
   // 메시지 전송 로직을 별도 함수로 분리
@@ -85,11 +79,11 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
   const handleCreatePoll = async (pollData: Omit<Poll, 'id' | 'createdAt'>) => {
     try {
       console.log('Creating new poll:', pollData);
-      
+
       // 새로운 설문조사 생성 전에 기존 활성 설문조사들을 모두 종료
       const activePolls = messages.filter(msg => msg.poll && msg.poll.isActive);
       console.log('Active polls to close:', activePolls.length);
-      
+
       for (const msg of activePolls) {
         if (msg.poll) {
           console.log('Closing poll:', msg.poll.id);
@@ -235,7 +229,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
             const latestAdminMessage = getLatestAdminMessage();
             const isLatestAdminMessage = user.isAdmin && msg.isAdmin && latestAdminMessage?.id === msg.id;
             const isSystemMessage = msg.userName === '시스템';
-            
+
             // 시스템 메시지는 중앙 정렬로 표시
             if (isSystemMessage) {
               return (
@@ -250,7 +244,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* 설문조사 카드 */}
                   {msg.poll && (
                     <PollCard
@@ -266,7 +260,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                 </div>
               );
             }
-            
+
             return (
               <div key={msg.id}>
                 <div
@@ -283,15 +277,14 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                         <PlusIcon className="w-5 h-5" />
                       </button>
                     )}
-                    
+
                     <div
-                      className={`max-w-full lg:max-w-full px-4 py-2 rounded-lg ${
-                        msg.userName === user.name
-                          ? 'bg-indigo-600 text-white'
-                          : msg.isAdmin
+                      className={`max-w-full lg:max-w-full px-4 py-2 rounded-lg ${msg.userName === user.name
+                        ? 'bg-indigo-600 text-white'
+                        : msg.isAdmin
                           ? 'bg-amber-100 border border-amber-200'
                           : 'bg-white border border-gray-200'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-1 -ml-1">
                         {msg.isAdmin ? (
@@ -304,30 +297,28 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ user, roomName, onLeave }) => {
                           </span>
                         )}
                         <span
-                          className={`text-xs ${
-                            msg.userName === user.name
-                              ? 'text-indigo-200'
-                              : 'text-gray-400'
-                          }`}
+                          className={`text-xs ${msg.userName === user.name
+                            ? 'text-indigo-200'
+                            : 'text-gray-400'
+                            }`}
                         >
                           {formatTime(msg.timestamp)}
                         </span>
                       </div>
                       <p
-                        className={`text-sm break-words ${
-                          msg.userName === user.name
-                            ? 'text-white'
-                            : msg.isAdmin
+                        className={`text-sm break-words ${msg.userName === user.name
+                          ? 'text-white'
+                          : msg.isAdmin
                             ? 'text-amber-800'
                             : 'text-gray-900'
-                        }`}
+                          }`}
                       >
                         {linkifyText(msg.message)}
                       </p>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* 설문조사 카드 */}
                 {msg.poll && (
                   <PollCard

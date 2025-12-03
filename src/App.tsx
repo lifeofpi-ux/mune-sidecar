@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import WelcomeScreen from './components/WelcomeScreen';
 import AuthenticatedAdminLogin from './components/AuthenticatedAdminLogin';
@@ -75,7 +76,17 @@ const AppContent = () => {
   };
 
   if (loading || authLoading) {
-    return <div className="flex items-center justify-center h-screen">로딩 중...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+          </div>
+        </div>
+        <p className="mt-4 text-blue-800 font-medium animate-pulse">로딩 중...</p>
+      </div>
+    );
   }
 
   // 관리자 화면 렌더링 로직
@@ -95,33 +106,33 @@ const AppContent = () => {
 
   return (
     <Routes>
-      <Route 
-        path="/" 
-        element={renderAdminScreen()} 
+      <Route
+        path="/"
+        element={renderAdminScreen()}
       />
-      <Route 
-        path="/signin" 
+      <Route
+        path="/signin"
         element={!user ? (
-          <SignIn 
+          <SignIn
             onSuccess={() => navigate('/')}
             onSwitchToSignUp={() => navigate('/signup')}
           />
-        ) : <Navigate to={`/chat/${user.roomId}`} replace />} 
+        ) : <Navigate to={`/chat/${user.roomId}`} replace />}
       />
-      <Route 
-        path="/signup" 
+      <Route
+        path="/signup"
         element={!user ? (
-          <SignUp 
+          <SignUp
             onSuccess={() => navigate('/')}
             onSwitchToLogin={() => navigate('/signin')}
           />
-        ) : <Navigate to={`/chat/${user.roomId}`} replace />} 
+        ) : <Navigate to={`/chat/${user.roomId}`} replace />}
       />
-      <Route 
-        path="/join" 
-        element={!user ? <UserLogin onUserJoined={handleUserJoined} /> : <Navigate to={`/chat/${user.roomId}`} replace />} 
+      <Route
+        path="/join"
+        element={!user ? <UserLogin onUserJoined={handleUserJoined} /> : <Navigate to={`/chat/${user.roomId}`} replace />}
       />
-      <Route 
+      <Route
         path="/chat/:roomId"
         element={user ? <ChatRoom user={user} roomName={roomName} onLeave={handleLeave} /> : <Navigate to="/" replace />}
       />
@@ -133,6 +144,18 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          className: 'text-xs font-medium',
+          style: {
+            padding: '8px 12px',
+            borderRadius: '12px',
+            background: '#333',
+            color: '#fff',
+          },
+        }}
+      />
       <Router>
         <AppContent />
       </Router>

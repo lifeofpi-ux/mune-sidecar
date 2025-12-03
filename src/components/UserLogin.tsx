@@ -14,7 +14,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
   const [error, setError] = useState('');
   const [roomInfo, setRoomInfo] = useState<{ id: string; name: string } | null>(null);
 
-  const { getRoomById, incrementOnlineUsers, checkNicknameAvailability, generateSessionId } = useChatRoom();
+  const { getRoomById, checkNicknameAvailability, generateSessionId } = useChatRoom();
   const roomId = searchParams.get('room');
 
   useEffect(() => {
@@ -74,7 +74,6 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
       // 세션 ID 생성
       const sessionId = generateSessionId();
 
-      await incrementOnlineUsers(roomInfo.id, userName.trim(), sessionId);
       onUserJoined(userName.trim(), roomInfo.id, roomInfo.name, sessionId);
     } catch (error) {
       setError('강의룸 입장에 실패했습니다. 다시 시도해주세요.');
@@ -87,7 +86,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
   if (!roomId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4 relative">
-        <div className="modern-card p-8 w-full max-w-md text-center">
+        <div className="modern-card p-8 w-full max-w-[400px] text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">오류</h1>
           <p className="text-gray-600">유효하지 않은 강의룸 링크입니다.</p>
         </div>
@@ -104,7 +103,7 @@ const UserLogin: React.FC<UserLoginProps> = ({ onUserJoined }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 relative">
-      <div className="modern-card p-8 w-full max-w-md">
+      <div className="modern-card p-8 w-full max-w-[400px]">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative ">

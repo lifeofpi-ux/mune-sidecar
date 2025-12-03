@@ -308,7 +308,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
-        <div className="p-8 w-full max-w-md">
+        <div className="p-8 w-full max-w-[400px]">
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-0.5 mb-2">
               <img
@@ -405,7 +405,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onRoomCreated }) => {
         </svg>
       </button>
 
-      <div className="p-8 w-full max-w-md">
+      <div className="p-8 w-full max-w-[400px]">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-0.5 mb-2">
             <img

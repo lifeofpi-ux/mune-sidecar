@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  collection, 
-  addDoc, 
-  query, 
-  orderBy, 
-  onSnapshot, 
+import {
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
   serverTimestamp,
   where,
   getDocs,
@@ -13,7 +13,8 @@ import {
   updateDoc,
   setDoc,
   increment,
-  getDoc
+  getDoc,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -55,16 +56,16 @@ export const useChat = (roomId: string | null, user: User | null) => {
         return null;
       }
 
-      await setDoc(userPresenceRef, {
+      const batch = writeBatch(db);
+      batch.set(userPresenceRef, {
         nickname: user.name,
         sessionId: user.sessionId,
         status: 'online',
         joinedAt: serverTimestamp()
       });
+      batch.set(roomRef, { onlineCount: increment(1) }, { merge: true });
 
-      await updateDoc(roomRef, { onlineCount: increment(1) }).catch(() => {
-        return setDoc(roomRef, { onlineCount: 1 }, { merge: true });
-      });
+      await batch.commit();
 
       isPresenceSetup.current = true;
       console.log(`[Presence #${presenceId}] setupUserPresence: SUCCESS.`);
@@ -110,12 +111,11 @@ export const useChat = (roomId: string | null, user: User | null) => {
 
       const existingPresence = await getDoc(userPresenceRef);
       if (existingPresence.exists()) {
-        await deleteDoc(userPresenceRef);
-        await updateDoc(roomRef, { onlineCount: increment(-1) }).catch(err => {
-          if (err?.code !== 'not-found') {
-            console.error(`[Presence #${presenceId}] Error decrementing online count:`, err);
-          }
-        });
+        const batch = writeBatch(db);
+        batch.delete(userPresenceRef);
+        batch.set(roomRef, { onlineCount: increment(-1) }, { merge: true });
+
+        await batch.commit();
         console.log(`[Presence #${presenceId}] cleanupUserPresence: SUCCESS.`);
       }
 
@@ -284,13 +284,13 @@ export const useChat = (roomId: string | null, user: User | null) => {
   const voteOnPoll = async (messageId: string, _pollId: string, optionId: string, userId: string) => {
     try {
       const messageRef = doc(db, 'messages', messageId);
-      
+
       // 현재 메시지에서 설문조사 데이터 찾기
       const currentMessage = messages.find(msg => msg.id === messageId);
       if (!currentMessage?.poll) return;
 
       const poll = currentMessage.poll;
-      
+
       // 이미 투표했는지 확인
       const hasVoted = poll.options.some((option: any) => Array.isArray(option.voters) && option.voters.includes(userId));
       if (hasVoted) return;
@@ -333,12 +333,12 @@ export const useChat = (roomId: string | null, user: User | null) => {
       if (!currentMessage?.poll) return;
 
       const poll = currentMessage.poll;
-      
+
       // 이미 응답했는지 확인
-      const hasResponded = poll.wordCloudResponses?.some(resp => 
+      const hasResponded = poll.wordCloudResponses?.some(resp =>
         typeof resp === 'string' && resp.includes(`[${userId}]`)
       ) || false;
-      
+
       if (hasResponded) {
         console.log('User has already responded to this word cloud');
         return;
@@ -351,20 +351,20 @@ export const useChat = (roomId: string | null, user: User | null) => {
       await updateDoc(messageRef, {
         'poll.wordCloudResponses': updatedResponses
       });
-      
+
       console.log('Word cloud response added successfully:', formattedResponse);
     } catch (error) {
       console.error('Error adding word cloud response:', error);
     }
   };
 
-  return { 
-    messages, 
-    loading, 
-    sendMessage, 
-    voteOnPoll, 
-    closePoll, 
-    addWordCloudResponse, 
+  return {
+    messages,
+    loading,
+    sendMessage,
+    voteOnPoll,
+    closePoll,
+    addWordCloudResponse,
     onlineUsers,
     onlineUsersList
   };
@@ -401,18 +401,18 @@ export const useRoomList = () => {
     try {
       // 채팅룸 삭제
       await deleteDoc(doc(db, 'chatRooms', roomId));
-      
+
       // 해당 룸의 모든 메시지 삭제
       const messagesRef = collection(db, 'messages');
       const messagesQuery = query(messagesRef, where('roomId', '==', roomId));
       const messagesSnapshot = await getDocs(messagesQuery);
-      
-      const deletePromises = messagesSnapshot.docs.map(messageDoc => 
+
+      const deletePromises = messagesSnapshot.docs.map(messageDoc =>
         deleteDoc(doc(db, 'messages', messageDoc.id))
       );
-      
+
       await Promise.all(deletePromises);
-      
+
       return true;
     } catch (error) {
       console.error('Error deleting room:', error);
@@ -429,7 +429,7 @@ export const useChatRoom = () => {
     try {
       const onlineUsersRef = collection(db, 'chatRooms', roomId, 'onlineUsers');
       const snapshot = await getDocs(onlineUsersRef);
-      
+
       // 현재 접속 중인 사용자들의 닉네임 확인
       const existingNicknames = new Set<string>();
       snapshot.forEach((doc) => {
@@ -438,7 +438,7 @@ export const useChatRoom = () => {
           existingNicknames.add(data.nickname);
         }
       });
-      
+
       return !existingNicknames.has(nickname);
     } catch (error) {
       console.error('Error checking nickname availability:', error);
@@ -471,10 +471,10 @@ export const useChatRoom = () => {
       // 먼저 새로운 rooms 컬렉션에서 찾기
       const newRoomRef = doc(db, 'rooms', roomId);
       const newRoomDoc = await getDoc(newRoomRef);
-      
+
       if (newRoomDoc.exists()) {
         const data = newRoomDoc.data();
-        
+
         return {
           id: newRoomDoc.id,
           name: data.name,
@@ -487,14 +487,14 @@ export const useChatRoom = () => {
           adminName: data.adminName
         };
       }
-      
+
       // 새로운 컬렉션에서 찾지 못한 경우 레거시 컬렉션에서 찾기
       const legacyRoomRef = doc(db, 'chatRooms', roomId);
       const legacyRoomDoc = await getDoc(legacyRoomRef);
-      
+
       if (legacyRoomDoc.exists()) {
         const data = legacyRoomDoc.data();
-        
+
         return {
           id: legacyRoomDoc.id,
           name: data.name,
@@ -503,7 +503,7 @@ export const useChatRoom = () => {
           isActive: data.isActive
         };
       }
-      
+
       return null;
     } catch (error: any) {
       console.error('Error getting room:', error);
@@ -516,128 +516,10 @@ export const useChatRoom = () => {
     return room?.adminPassword === password;
   };
 
-  const incrementOnlineUsers = async (roomId: string, userName: string, sessionId?: string) => {
-    try {
-      // 먼저 어느 컬렉션에 룸이 있는지 확인
-      const room = await getRoomById(roomId);
-      if (!room) {
-        throw new Error('Room not found');
-      }
-
-      // 새로운 rooms 컬렉션에 있는지 확인
-      const newRoomRef = doc(db, 'rooms', roomId);
-      const newRoomDoc = await getDoc(newRoomRef);
-      const isNewRoom = newRoomDoc.exists();
-
-      // 적절한 컬렉션 선택
-      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
-      
-      // 세션 ID가 제공된 경우 새로운 방식 사용, 아니면 기존 방식 유지 (하위 호환성)
-      const documentId = sessionId || userName;
-      const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), documentId);
-      
-      // 이미 접속되어 있는지 확인
-      const existingPresence = await getDoc(userPresenceRef);
-      if (existingPresence.exists()) {
-        console.log('User already online, skipping increment');
-        return;
-      }
-
-      // 사용자의 접속 상태를 나타내는 문서 생성
-      const presenceData = sessionId ? {
-        nickname: userName,
-        sessionId: sessionId,
-        status: 'online',
-        joinedAt: serverTimestamp()
-      } : {
-        status: 'online'
-      };
-
-      await setDoc(userPresenceRef, presenceData);
-
-      // 채팅방의 접속자 수 업데이트
-      const roomRef = doc(db, collectionName, roomId);
-      try {
-        await updateDoc(roomRef, {
-          onlineCount: increment(1)
-        });
-      } catch (error: any) {
-        if (error?.code === 'not-found') {
-          console.log('Room document not found for increment');
-        } else {
-          console.log('Initializing onlineCount field for increment');
-          try {
-            await updateDoc(roomRef, {
-              onlineCount: 1
-            });
-          } catch (retryError: any) {
-            console.error('Failed to initialize onlineCount for increment:', retryError);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error incrementing online users:', error);
-      throw error;
-    }
-  };
-
-  const decrementOnlineUsers = async (roomId: string, userName: string, sessionId?: string) => {
-    try {
-      // 먼저 어느 컬렉션에 룸이 있는지 확인
-      const room = await getRoomById(roomId);
-      if (!room) {
-        console.log('Room not found, skipping decrement');
-        return;
-      }
-
-      // 새로운 rooms 컬렉션에 있는지 확인
-      const newRoomRef = doc(db, 'rooms', roomId);
-      const newRoomDoc = await getDoc(newRoomRef);
-      const isNewRoom = newRoomDoc.exists();
-
-      // 적절한 컬렉션 선택
-      const collectionName = isNewRoom ? 'rooms' : 'chatRooms';
-      
-      // 세션 ID가 제공된 경우 새로운 방식 사용, 아니면 기존 방식 유지 (하위 호환성)
-      const documentId = sessionId || userName;
-      const userPresenceRef = doc(collection(db, collectionName, roomId, 'onlineUsers'), documentId);
-      
-      // 사용자의 접속 상태 문서가 존재하는지 확인
-      const existingPresence = await getDoc(userPresenceRef);
-      if (!existingPresence.exists()) {
-        console.log('User presence document not found, skipping decrement');
-        return;
-      }
-
-      // 사용자의 접속 상태 문서 삭제
-      await deleteDoc(userPresenceRef);
-
-      // 채팅방의 접속자 수 업데이트
-      const roomRef = doc(db, collectionName, roomId);
-      try {
-        const roomDoc = await getDoc(roomRef);
-        if (roomDoc.exists() && roomDoc.data().onlineCount > 0) {
-          await updateDoc(roomRef, {
-            onlineCount: increment(-1)
-          });
-        }
-      } catch (error: any) {
-        if (error?.code !== 'not-found') {
-          console.error('Error decrementing online users count:', error);
-        }
-      }
-    } catch (error) {
-      console.error('Error decrementing online users:', error);
-      throw error;
-    }
-  };
-
-  return { 
-    createRoom, 
-    getRoomById, 
+  return {
+    createRoom,
+    getRoomById,
     verifyAdminPassword,
-    incrementOnlineUsers,
-    decrementOnlineUsers,
     checkNicknameAvailability,
     generateSessionId
   };
